@@ -10,6 +10,6 @@ To upload a song to Skyline, your track **must** include all of the following cr
 
 If your track meets all of the above requirements, you can submit your song through a [**GitHub Pull Request**](https://github.com/PrismID/skyline-lofi/pulls). The Skyline Sound Team will review your submission before it gets merged!
 
-⚠️ **WARNING:** *If your song doesn't meet these requirements or violates [submission guidelines](github.com/PrismID/skyline-lofi/wiki/Song-Upload), you could face a permanent or temporary ban from submitting tracks!*
+⚠️ **WARNING:** *If your song doesn't meet these requirements or violates [submission guidelines](https://github.com/PrismID/skyline-lofi/wiki/Song-Upload), you could face a permanent or temporary ban from submitting tracks!*
 
 [Help from the official GitHub page is located here](https://docs.github.com/en/pull-requests/get-started/pull-request-quickstart)
