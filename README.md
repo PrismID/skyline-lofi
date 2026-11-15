@@ -13,3 +13,6 @@ If your track meets all of the above requirements, you can submit your song thro
 ⚠️ **WARNING:** *If your song doesn't meet these requirements or violates [submission guidelines](https://github.com/PrismID/skyline-lofi/wiki/Song-Upload), you could face a permanent or temporary ban from submitting tracks!*
 
 [Help from the official GitHub page is located here](https://docs.github.com/en/pull-requests/get-started/pull-request-quickstart)
+
+## 📄 License
+This project is open-source and available under the [MIT License](LICENSE).
