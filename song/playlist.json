@@ -1,0 +1,14 @@
+[
+  {
+    "songName": "Morning Petals",
+    "songAuthor": "The Skyline Sound Team",
+    "songImg": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48ZGVmcz48bGluZWFyR3JhZGllbnQgaWQ9ImcxIiB4MT0iMCUiIHkxPSIwJSIgeDI9IjEwMCUiIHkyPSIxMDAlIj48c3RvcCBvZmZzZXQ9IjAlIiBzdG9wLWNvbG9yPSIjZDQ4MzZhIi8+PHN0b3Agb2Zmc2V0PSIxMDAlIiBzdG9wLWNvbG9yPSIjZTVhOTk1Ii8+PC9saW5lYXJHcmFkaWVudD48L2RlZnM+PHJlY3Qgd2lkdGg9IjEwMCIgaGVpZ2h0PSIxMDAiIHJ4PSIxNiIgZmlsbD0idXJsKCNnMSkiLz48Y2lyY2xlIGN4PSI1MCIgY3k9IjUwIiByPSIyNCIgZmlsbD0iIzJjMzUzMCIgb3BhY2l0eT0iMC4yIi8+PHRleHQgeD0iNTAiIHk9IjU4IiBmb250LXNpemU9IjI2IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj7wn4y4PC90ZXh0Pjwvc3ZnPg==",
+    "songLength": "00:30"
+  },
+  {
+    "songName": "Greenhouse Lofi",
+    "songAuthor": "Botanical Beats",
+    "songImg": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48ZGVmcz48bGluZWFyR3JhZGllbnQgaWQ9ImcyIiB4MT0iMCUiIHkxPSIwJSIgeDI9IjEwMCUiIHkyPSIxMDAlIj48c3RvcCBvZmZzZXQ9IjAlIiBzdG9wLWNvbG9yPSIjNTI2ODU3Ii8+PHN0b3Agb2Zmc2V0PSIxMDAlIiBzdG9wLWNvbG9yPSIjODI5OTg0Ii8+PC9saW5lYXJHcmFkaWVudD48L2RlZnM+PHJlY3Qgd2lkdGg9IjEwMCIgaGVpZ2h0PSIxMDAiIHJ4PSIxNiIgZmlsbD0idXJsKCNnMikiLz48Y2lyY2xlIGN4PSI1MCIgY3k9IjUwIiByPSIyNCIgZmlsbD0iIzFiMjIxZSIgb3BhY2l0eT0iMC4yIi8+PHRleHQgeD0iNTAiIHk9IjU4IiBmb250LXNpemU9IjI2IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj7wn4y/PC90ZXh0Pjwvc3ZnPg==",
+    "songLength": "00:30"
+  }
+]
