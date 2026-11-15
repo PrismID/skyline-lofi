@@ -1,0 +1,36 @@
+name: 🎵 Submit a Song
+description: Suggest a new lofi track for the Skyline playlist
+title: "[Song]: "
+labels: ["song-submission"]
+body:
+  - type: input
+    id: song_name
+    attributes:
+      label: Song Title
+      description: The exact title of the song (must match the .mp3 filename).
+      placeholder: e.g., Midnight Coffee
+    validations:
+      required: true
+  - type: input
+    id: song_author
+    attributes:
+      label: Artist / Author
+      description: Name of the artist or creator.
+      placeholder: e.g., Lofi Dreamer
+    validations:
+      required: true
+  - type: input
+    id: song_length
+    attributes:
+      label: Song Duration
+      description: Format as MM:SS (e.g., 02:45).
+      placeholder: e.g., 03:15
+    validations:
+      required: true
+  - type: textarea
+    id: song_url
+    attributes:
+      label: Audio File Link
+      description: Provide a direct link to download or listen to the .mp3 file (e.g., Google Drive, Dropbox, or a public URL).
+    validations:
+      required: true
