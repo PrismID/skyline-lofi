@@ -19,14 +19,11 @@
     <meta property="og:type" content="website">
     <meta property="og:title" content="Skyline ● Your Seasonal Lofi & Chillhop Retreat">
     <meta property="og:description" content="Immerse yourself in the curated sounds of Skyline. Discover essential seasonal playlists from Spring Vibes to Winter Chill and 2026 futuristic beats.">
-    <meta property="og:image" content="https://prismid.github.io/skyline-lofi/favicon.png">
-    <meta property="og:url" content="https://prismid.github.io/skyline-lofi/">
 
     <!-- Twitter -->
     <meta property="twitter:card" content="summary_large_image">
     <meta property="twitter:title" content="Skyline ● Your Seasonal Lofi & Chillhop Retreat">
     <meta property="twitter:description" content="Immerse yourself in the curated sounds of Skyline. Discover essential seasonal playlists from Spring Vibes to Winter Chill and 2026 futuristic beats.">
-    <meta property="twitter:image" content="https://prismid.github.io/skyline-lofi/favicon.png">
     
     <!-- Fonts & Icons & Stylesheets -->
     <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@400;700&amp;family=Quicksand:wght@500;600;700&amp;display=swap" rel="stylesheet">
@@ -237,7 +234,7 @@
     <div class="floating-panel" id="copyrightPanel">
         <div class="panel-header">Copyright & Licensing</div>
         <div style="font-size: 12px; color: #93a895; text-align: center; padding: 15px 0;">
-            Visuals are provided by <a href="https://app.chillhop.com/#" target="_blank" style="color: #d4836a;">Chillhop</a>, a really good music website, and are used under their licensing terms. Servers are provided for free by <a href="https://firebase.google.com/" target="_blank" style="color: #d4836a;">Firebase</a>. The song played currently is made by the following artist(s): <span id="copyrightArtist" style="color: #f0f4f1; font-weight: 600;">The Skyline Sound Team</span>. Making Skyline was a really fun time, and I hope you enjoy it! If you have any questions or concerns, please reach out to me at the official Skyline <a href="https://github.com/PrismID/skyline-lofi" target="_blank" style="color: #d4836a;">GitHub page</a>
+            Visuals are provided by <a href="https://app.chillhop.com/#" target="_blank" style="color: #d4836a;">Chillhop</a>, a really good music website, and are used under their licensing terms. Servers are provided for free by <a href="https://firebase.google.com/" target="_blank" style="color: #d4836a;">Firebase</a>. The song played currently is made by the following artist(s): <span id="copyrightArtist" style="color: #f0f4f1; font-weight: 600;">The Skyline Sound Team</span>. Making Skyline was a really fun time, and I hope you enjoy it! If you have any questions or concerns, please reach out to me at the official Skyline <a href="https://github.com/PrismID/skyline" target="_blank" style="color: #d4836a;">GitHub page</a>
         </div>
     </div>
 
@@ -288,6 +285,54 @@
                 </div>
                 <button type="submit" class="auth-submit-btn" id="authSubmitBtn">Log In</button>
             </form>
+        </div>
+    </div>
+    <!-- TUTORIAL MODAL OVERLAY -->
+    <div class="auth-modal-overlay" id="tutorialModalOverlay">
+        <div class="auth-modal-card" style="max-width: 440px; text-align: center;" role="dialog" aria-modal="true">
+            <button class="auth-close-btn" onclick="App.closeTutorial()" title="Close">&times;</button>
+        
+            <div class="auth-logo-badge" id="tutIcon" style="font-size: 24px; color: #d4836a;">
+                <i class="ph ph-sparkle"></i>
+            </div>
+        
+            <div class="auth-header-title" id="tutTitle" style="display: flex; flex-direction: column; align-items: center;">
+                <span>Welcome to</span>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 350 56" width="210" height="36" style="margin-top: 6px; margin-left: 83px;">
+                    <g transform="translate(14, 10)">
+                        <circle cx="18" cy="18" r="18" fill="#526857" opacity="0.5" />
+                        <path d="M 6,28 C 13,26 23,27 30,24" stroke="#f0f4f1" stroke-width="2.2" stroke-linecap="round" fill="none" />
+                        <path d="M 12,24 C 10.5,20 12,14 16,12 C 20,10 24.5,12 25.5,15.5 C 26.5,19 23,24 18,24 C 15,24 13,25 12,24 Z" fill="#f0f4f1" stroke="#f0f4f1" stroke-width="1" stroke-linejoin="round" />
+                        <path d="M 15,16.5 C 18,17 21,19 21,22" stroke="#2c3530" stroke-width="1.6" fill="none" stroke-linecap="round" />
+                        <polygon points="25.5,15 29,16 26,17.5" fill="#e59866" />
+                        <path d="M 21.5,13.5 Q 22.5,15 23.5,13.5" stroke="#2c3530" stroke-width="1.2" fill="none" stroke-linecap="round" />
+                    </g>
+                    <g transform="translate(68, 0)">
+                        <text x="0" y="39" font-family="'Comfortaa', 'Quicksand', sans-serif" font-weight="700" font-size="40" letter-spacing="-1" fill="#f0f4f1">skyline</text>
+                    </g>
+                    <g transform="translate(228, 16)">
+                        <text x="-13" y="26" font-family="-apple-system, sans-serif" font-weight="700" font-size="9.5" letter-spacing="3" fill="#d4ad94" opacity="0.9" transform="rotate(90 0,10)">LOFI</text>
+                    </g>
+                </svg>
+            </div>
+
+            <div class="auth-header-subtitle" id="tutDesc" style="margin-bottom: 24px; line-height: 1.6;">
+                Let’s take a quick 30-second tour of your new lofi retreat so you can get the most out of your sessions.
+            </div>
+
+            <!-- Step indicators -->
+            <div style="display: flex; justify-content: center; gap: 6px; margin-bottom: 20px;" id="tutDots">
+                <span class="tut-dot active" style="width: 8px; height: 8px; border-radius: 50%; background: #d4836a;"></span>
+                <span class="tut-dot" style="width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,0.15);"></span>
+                <span class="tut-dot" style="width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,0.15);"></span>
+                <span class="tut-dot" style="width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,0.15);"></span>
+                <span class="tut-dot" style="width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,0.15);"></span>
+            </div>
+
+            <div style="display: flex; gap: 10px; width: 100%;">
+                <button type="button" class="auth-submit-btn" id="tutSkipBtn" onclick="App.closeTutorial()" style="background: rgba(255,255,255,0.08); color: #b8cbb9; box-shadow: none;">Skip</button>
+                <button type="button" class="auth-submit-btn" id="tutNextBtn" onclick="App.nextTutorialStep()">Next</button>
+            </div>
         </div>
     </div>
 
