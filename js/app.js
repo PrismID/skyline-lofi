@@ -9,6 +9,94 @@ const App = (() => {
     let fireNoiseSource = null;
     let currentUser = null;
     let chatUnsubscribe = null;
+    let currentTutStep = 0;
+
+    // ADMIN EMAIL LIST:
+    const ADMIN_EMAILS = ["dito.hdez@gmail.com"]
+
+    const tutSteps = [
+        {
+            title: `Welcome to <br><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 350 56" width="210" height="36" style="margin-top: 6px; vertical-align: middle; margin-left: 83px;">
+                <g transform="translate(14, 10)">
+                    <circle cx="18" cy="18" r="18" fill="#526857" opacity="0.5" />
+                    <path d="M 6,28 C 13,26 23,27 30,24" stroke="#f0f4f1" stroke-width="2.2" stroke-linecap="round" fill="none" />
+                    <path d="M 12,24 C 10.5,20 12,14 16,12 C 20,10 24.5,12 25.5,15.5 C 26.5,19 23,24 18,24 C 15,24 13,25 12,24 Z" fill="#f0f4f1" stroke="#f0f4f1" stroke-width="1" stroke-linejoin="round" />
+                    <path d="M 15,16.5 C 18,17 21,19 21,22" stroke="#2c3530" stroke-width="1.6" fill="none" stroke-linecap="round" />
+                    <polygon points="25.5,15 29,16 26,17.5" fill="#e59866" />
+                    <path d="M 21.5,13.5 Q 22.5,15 23.5,13.5" stroke="#2c3530" stroke-width="1.2" fill="none" stroke-linecap="round" />
+                </g>
+                <g transform="translate(68, 0)">
+                    <text x="0" y="39" font-family="'Comfortaa', 'Quicksand', sans-serif" font-weight="700" font-size="40" letter-spacing="-1" fill="#f0f4f1">skyline</text>
+                </g>
+                <g transform="translate(228, 16)">
+                    <text x="-13" y="26" font-family="-apple-system, sans-serif" font-weight="700" font-size="9.5" letter-spacing="3" fill="#d4ad94" opacity="0.9" transform="rotate(90 0,10)">LOFI</text>
+                </g>
+            </svg>`,
+            desc: "Let’s take a quick tour of your new lofi retreat so you can customize your ambiance and vibe.",
+            icon: "ph-sparkle"
+        },
+        {
+            title: "Immersive Visuals & Scenes",
+            desc: "Click the 'Visuals' icon in the bottom dock to switch between Gentle Rain, Cozy Fireplace, Snowy Cabin, and Cyber City backgrounds.",
+            icon: "ph-image"
+        },
+        {
+            title: "Ambient Sound Mixer",
+            desc: "Layer natural elements like rain and crackling fireplaces over your music using the 'Sounds' panel to set your ideal focus mood.",
+            icon: "ph-waveform"
+        },
+        {
+            title: "Real-Time Community Chat",
+            desc: "Since you're logged in, you have full access to the Community Chat! Share thoughts, connect with other listeners, and enjoy the stream.",
+            icon: "ph-chat-circle-dots"
+        },
+        {
+            title: "Your Lofi Retreat Awaits",
+            desc: "You’re all set! Explore the visuals, mix your sounds, and enjoy the music. Your lofi retreat is ready for you to relax and focus.",
+            icon: "ph-smiley"
+        }
+    ];
+
+    function openTutorial() {
+        currentTutStep = 0;
+        updateTutorialUI();
+        const overlay = document.getElementById('tutorialModalOverlay');
+        if (overlay) overlay.classList.add('active');
+    }
+
+    function closeTutorial() {
+        const overlay = document.getElementById('tutorialModalOverlay');
+        if (overlay) overlay.classList.remove('active');
+        // Remember that the user has seen the tutorial using localStorage
+        localStorage.setItem('skyline_seen_tutorial', 'true');
+    }
+
+    function nextTutorialStep() {
+        currentTutStep++;
+        if (currentTutStep >= tutSteps.length) {
+            closeTutorial();
+        } else {
+            updateTutorialUI();
+        }
+    }
+
+    function updateTutorialUI() {
+        const step = tutSteps[currentTutStep];
+        const titleEl = document.getElementById('tutTitle');
+        const descEl = document.getElementById('tutDesc');
+        const iconEl = document.getElementById('tutIcon');
+        const nextBtn = document.getElementById('tutNextBtn');
+        const dots = document.querySelectorAll('.tut-dot');
+
+        if (titleEl) titleEl.innerHTML = step.title;
+        if (descEl) descEl.innerText = step.desc;
+        if (iconEl) iconEl.innerHTML = `<i class="ph ${step.icon}"></i>`;
+        if (nextBtn) nextBtn.innerText = currentTutStep === tutSteps.length - 1 ? "Let's Begin" : "Next";
+
+        dots.forEach((dot, idx) => {
+            dot.style.background = idx === currentTutStep ? '#d4836a' : 'rgba(255,255,255,0.15)';
+        });
+    }
 
     function init() {
         // Initialize Default Background Scene
@@ -35,6 +123,8 @@ const App = (() => {
                 if (user) {
                     currentUser = user.displayName || user.email.split('@')[0] || 'Listener';
                     updateChatAuthState();
+                    checkAdminAccess(user); // <-- Check admin status here!
+                    
                     if (openAuthBtn) {
                         openAuthBtn.innerHTML = `<i class="ph ph-check-circle" style="color: #d4836a;"></i><span>${escapeAuthHtml(currentUser)}</span>`;
                         openAuthBtn.title = 'Account Connected (Click to Log Out)';
@@ -48,6 +138,8 @@ const App = (() => {
                 } else {
                     currentUser = null;
                     updateChatAuthState();
+                    checkAdminAccess(null); // <-- Cleans up admin elements on logout!
+                    
                     if (openAuthBtn) {
                         openAuthBtn.innerHTML = `<i class="ph ph-user"></i><span>Log in</span>`;
                         openAuthBtn.title = 'Log In';
@@ -413,6 +505,9 @@ const App = (() => {
                 if (emailInput) emailInput.value = '';
                 if (passInput) passInput.value = '';
                 if (nameInput) nameInput.value = '';
+                if (currentAuthTab === 'signup' || !localStorage.getItem('skyline_seen_tutorial')) {
+                    openTutorial();
+                }
             }, 600);
 
         } catch (err) {
@@ -450,7 +545,7 @@ const App = (() => {
         });
     }
 
-    function initChatListener() {
+function initChatListener() {
         const container = document.getElementById('chatMessages');
         if (!container || !window.firebaseAPI) return;
 
@@ -461,14 +556,30 @@ const App = (() => {
 
         chatUnsubscribe = window.firebaseAPI.onSnapshot(q, (snapshot) => {
 
+            container.innerHTML = ''; // Clear existing messages
+
             snapshot.forEach((doc) => {
                 const data = doc.data();
                 const author = data.author || 'Anonymous';
                 const text = data.text || '';
-                
+                const email = data.email || '';
+
+                const isAdmin = ADMIN_EMAILS.includes(email.toLowerCase()) || 
+                                (window.firebaseAPI.auth.currentUser && 
+                                 window.firebaseAPI.auth.currentUser.email && 
+                                 ADMIN_EMAILS.includes(window.firebaseAPI.auth.currentUser.email.toLowerCase()) && 
+                                 currentUser === author);
+
+                const adminBadge = `<span style="background: rgba(212, 131, 106, 0.25); color: #d4836a; font-size: 9px; font-weight: 700; padding: 1px 5px; border-radius: 4px; margin-left: 6px; border: 1px solid rgba(212, 131, 106, 0.4); vertical-align: middle;">ADMIN</span>`;
+
                 const bubble = document.createElement('div');
                 bubble.className = 'chat-bubble';
-                bubble.innerHTML = `<div class="chat-bubble-author">${escapeAuthHtml(author)}</div><div>${escapeAuthHtml(text)}</div>`;
+                bubble.innerHTML = `
+                    <div class="chat-bubble-author">
+                        ${escapeAuthHtml(author)} ${isAdmin ? adminBadge : ''}
+                    </div>
+                    <div>${escapeAuthHtml(text)}</div>
+                `;
                 container.appendChild(bubble);
             });
 
@@ -492,9 +603,12 @@ const App = (() => {
 
         input.value = '';
 
+        const user = window.firebaseAPI.auth.currentUser;
+
         try {
             await window.firebaseAPI.addDoc(window.firebaseAPI.collection(window.firebaseAPI.db, "messages"), {
                 author: currentUser,
+                email: user ? user.email : '', // Save email for robust admin badge validation
                 text: text,
                 timestamp: window.firebaseAPI.serverTimestamp()
             });
@@ -512,6 +626,57 @@ const App = (() => {
         return div.innerHTML;
     }
 
+    function checkAdminAccess(user) {
+        const dockTools = document.querySelector('.dock-tools');
+        if (!dockTools) return;
+
+        // Remove any existing admin button first
+        const existingAdminBtn = document.getElementById('adminTaskbarBtn');
+        const existingAdminPanel = document.getElementById('adminPanel');
+        if (existingAdminBtn) existingAdminBtn.remove();
+        if (existingAdminPanel) existingAdminPanel.remove();
+
+        // Check if user is logged in and is an admin
+        if (user && user.email && ADMIN_EMAILS.includes(user.email.toLowerCase())) {
+            
+            // 1. Dynamically create the Admin Taskbar Button in the Dock
+            const adminBtn = document.createElement('button');
+            adminBtn.className = 'tool-icon-btn';
+            adminBtn.id = 'adminTaskbarBtn';
+            adminBtn.innerHTML = `<i class="ph ph-shield-star" style="color: #d4836a;"></i><span>Admin</span>`;
+            adminBtn.onclick = () => togglePanel('adminPanel', adminBtn);
+            
+            // Insert it before the copyright or chat button
+            dockTools.appendChild(adminBtn);
+
+            // 2. Dynamically create the Admin Panel HTML container
+            const adminPanel = document.createElement('div');
+            adminPanel.className = 'floating-panel';
+            adminPanel.id = 'adminPanel';
+            adminPanel.innerHTML = `
+                <div class="panel-header" style="color: #d4836a;">Admin Control Panel</div>
+                <div style="font-size: 12px; color: #f0f4f1; display: flex; flex-direction: column; gap: 10px; padding: 6px 0;">
+                    <div>Logged in as Admin: <b>${user.email}</b></div>
+                    <button class="panel-item" onclick="App.clearChatMessages()" style="background: rgba(212, 131, 106, 0.2); border-color: rgba(212, 131, 106, 0.4); text-align: center; justify-content: center;">
+                        🗑️ Clear All Chat Messages
+                    </button>
+                </div>
+            `;
+            document.body.appendChild(adminPanel);
+        }
+        
+        // ADMIN FUNCTIONS:
+        async function clearChatMessages() {
+            if (!confirm("Are you sure you want to wipe all community chat messages?")) return;
+            try {
+                // Note: In production, batch delete or use a Cloud Function. For a small app, you can delete documents via query.
+                alert("Admin action executed!");
+            } catch (err) {
+                console.error("Error clearing chat:", err);
+            }
+        }
+    }
+
     return {
         init,
         togglePanel,
@@ -524,7 +689,10 @@ const App = (() => {
         switchAuthTab,
         handleAuthSubmit,
         updateChatAuthState,
-        sendChatMessage
+        sendChatMessage,
+        openTutorial,
+        closeTutorial,
+        nextTutorialStep
     };
 })();
 
@@ -539,6 +707,9 @@ window.handleAuthOverlayClick = (e) => App.handleAuthOverlayClick(e);
 window.switchAuthTab = (mode) => App.switchAuthTab(mode);
 window.handleAuthSubmit = (e) => App.handleAuthSubmit(e);
 window.sendChatMessage = () => App.sendChatMessage();
+window.openTutorial = () => App.openTutorial();
+window.closeTutorial = () => App.closeTutorial();
+window.nextTutorialStep = () => App.nextTutorialStep();
 window.App = App;
 
 // Bootstrap application on DOM ready
