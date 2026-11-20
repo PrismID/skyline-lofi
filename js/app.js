@@ -12,7 +12,20 @@ const App = (() => {
     let currentTutStep = 0;
 
     // ADMIN EMAIL LIST:
-    const ADMIN_EMAILS = ["dito.hdez@gmail.com"]
+    const ADMIN_EMAILS = [
+        "dito.hdez@gmail.com"
+    ];
+
+    // VERIFIED EMAIL LIST:
+    const VERIFIED_EMAILS = [
+        "dito.hdez@gmail.com",
+    ];
+
+    const VERIFIED_CHECK_SVG = `
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="13" height="13"><path fill="#42a5f5" d="M24,2l4.5,5L35,5l1.5,6.5L43,13l-2,6.5l5,4.5l-5,4.5l2,6.5l-6.5,1.5L35,43l-6.5-2L24,46l-4.5-5L13,43l-1.5-6.5 L5,35l2-6.5L2,24l5-4.5L5,13l6.5-1.5L13,5l6.5,2L24,2z"/><path fill="#e3f2fd" d="M34.6,14.6L21,28.2l-5.6-5.6l-2.8,2.8l8.4,8.4l16.4-16.4L34.6,14.6z"/></svg>
+    `;
+
+    const ADMIN_SHIELD_HTML = `<i class="ph ph-shield-star" style="color: #d4836a; font-size: 13px;" title="Admin"></i>`;
 
     const tutSteps = [
         {
@@ -57,6 +70,25 @@ const App = (() => {
         }
     ];
 
+    function getUserRoles(email) {
+        const cleanEmail = (email || "").trim().toLowerCase();
+        const isAdmin = ADMIN_EMAILS.some(e => e.toLowerCase() === cleanEmail);
+        const isVerified = isAdmin || VERIFIED_EMAILS.some(e => e.toLowerCase() === cleanEmail);
+        return { isAdmin, isVerified };
+    }
+
+    function getBadgesHTML({ isAdmin = false, isVerified = false }) {
+        const adminBadge = isAdmin
+            ? `<span class="chat-badge-admin">${ADMIN_SHIELD_HTML}<span>ADMIN</span></span>`
+            : "";
+
+        const verifiedBadge = isVerified
+            ? `<span class="chat-badge-verified" title="Verified User" aria-label="Verified User">${VERIFIED_CHECK_SVG}</span>`
+            : "";
+
+        return `${adminBadge}${verifiedBadge}`;
+    }
+
     function openTutorial() {
         currentTutStep = 0;
         updateTutorialUI();
@@ -67,7 +99,6 @@ const App = (() => {
     function closeTutorial() {
         const overlay = document.getElementById('tutorialModalOverlay');
         if (overlay) overlay.classList.remove('active');
-        // Remember that the user has seen the tutorial using localStorage
         localStorage.setItem('skyline_seen_tutorial', 'true');
     }
 
@@ -99,34 +130,34 @@ const App = (() => {
     }
 
     function init() {
-        // Initialize Default Background Scene
         const defaultBgBtn = document.querySelector('.bg-btn');
         switchBackground('vid-rain', defaultBgBtn);
 
-        // Fullscreen sync listener (updates buttons when user presses Esc or browser UI)
         ['fullscreenchange', 'webkitfullscreenchange', 'mozfullscreenchange', 'MSFullscreenChange'].forEach(ev => {
             document.addEventListener(ev, handleFullscreenChange);
         });
 
-        // Ambient sound sliders
         setupAmbientSliders();
-
-        // Chat setup and authentication gate
         setupChat();
         updateChatAuthState();
         initChatListener();
 
-        // Listen to Firebase Auth state changes
         if (window.firebaseAPI) {
             window.firebaseAPI.onAuthStateChanged(window.firebaseAPI.auth, (user) => {
                 const openAuthBtn = document.getElementById('openAuthBtn');
                 if (user) {
                     currentUser = user.displayName || user.email.split('@')[0] || 'Listener';
+                    const { isVerified } = getUserRoles(user.email);
                     updateChatAuthState();
-                    checkAdminAccess(user); // <-- Check admin status here!
-                    
+                    checkAdminAccess(user);
+
                     if (openAuthBtn) {
-                        openAuthBtn.innerHTML = `<i class="ph ph-check-circle" style="color: #d4836a;"></i><span>${escapeAuthHtml(currentUser)}</span>`;
+                        const roles = getUserRoles(user.email);
+                        const parts = [];
+                        if (roles.isAdmin) parts.push(ADMIN_SHIELD_HTML);
+                        if (roles.isVerified) parts.push(`<span class="chat-badge-verified" title="Verified User">${VERIFIED_CHECK_SVG}</span>`);
+                        if (!roles.isAdmin && !roles.isVerified) parts.push(`<i class="ph ph-check-circle" style="color: #d4836a;"></i>`);
+                        openAuthBtn.innerHTML = `${parts.join("")}<span>${escapeAuthHtml(currentUser)}</span>`;
                         openAuthBtn.title = 'Account Connected (Click to Log Out)';
                         openAuthBtn.onclick = (e) => {
                             e.preventDefault();
@@ -138,8 +169,8 @@ const App = (() => {
                 } else {
                     currentUser = null;
                     updateChatAuthState();
-                    checkAdminAccess(null); // <-- Cleans up admin elements on logout!
-                    
+                    checkAdminAccess(null);
+
                     if (openAuthBtn) {
                         openAuthBtn.innerHTML = `<i class="ph ph-user"></i><span>Log in</span>`;
                         openAuthBtn.title = 'Log In';
@@ -149,17 +180,14 @@ const App = (() => {
             });
         }
 
-        // Close floating panels when clicking outside
         document.addEventListener('click', handleOutsideClick);
 
-        // Close auth modal on Escape key
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
                 closeAuthModal();
             }
         });
 
-        // Initialize playlist player module if present
         if (window.PlaylistPlayer && typeof window.PlaylistPlayer.init === 'function') {
             window.PlaylistPlayer.init();
         }
@@ -171,7 +199,6 @@ const App = (() => {
 
         const isActive = panel.classList.contains('active');
 
-        // Close all panels and un-highlight taskbar buttons
         document.querySelectorAll('.floating-panel').forEach(p => p.classList.remove('active'));
         document.querySelectorAll('.tool-icon-btn').forEach(b => b.classList.remove('active'));
 
@@ -429,7 +456,6 @@ const App = (() => {
         const submitBtn = document.getElementById('authSubmitBtn');
         const rowActions = document.getElementById('authRowActions');
         const rowActions2 = document.getElementById('authRowActions2');
-        const switchPrompt = document.getElementById('authSwitchPrompt');
 
         if (mode === 'signup') {
             if (tabLogin) tabLogin.classList.remove('active');
@@ -545,7 +571,7 @@ const App = (() => {
         });
     }
 
-function initChatListener() {
+    function initChatListener() {
         const container = document.getElementById('chatMessages');
         if (!container || !window.firebaseAPI) return;
 
@@ -555,8 +581,7 @@ function initChatListener() {
         );
 
         chatUnsubscribe = window.firebaseAPI.onSnapshot(q, (snapshot) => {
-
-            container.innerHTML = ''; // Clear existing messages
+            container.innerHTML = '';
 
             snapshot.forEach((doc) => {
                 const data = doc.data();
@@ -564,19 +589,18 @@ function initChatListener() {
                 const text = data.text || '';
                 const email = data.email || '';
 
-                const isAdmin = ADMIN_EMAILS.includes(email.toLowerCase()) || 
-                                (window.firebaseAPI.auth.currentUser && 
-                                 window.firebaseAPI.auth.currentUser.email && 
-                                 ADMIN_EMAILS.includes(window.firebaseAPI.auth.currentUser.email.toLowerCase()) && 
-                                 currentUser === author);
-
-                const adminBadge = `<span style="background: rgba(212, 131, 106, 0.25); color: #d4836a; font-size: 9px; font-weight: 700; padding: 1px 5px; border-radius: 4px; margin-left: 6px; border: 1px solid rgba(212, 131, 106, 0.4); vertical-align: middle;">ADMIN</span>`;
+                const authUserEmail = window.firebaseAPI.auth.currentUser?.email || '';
+                const fallbackEmail = (!email && currentUser === author) ? authUserEmail : email;
+                const roles = getUserRoles(fallbackEmail);
+                const isAdmin = typeof data.isAdmin === 'boolean' ? data.isAdmin : roles.isAdmin;
+                const isVerified = typeof data.isVerified === 'boolean' ? data.isVerified : roles.isVerified;
 
                 const bubble = document.createElement('div');
                 bubble.className = 'chat-bubble';
                 bubble.innerHTML = `
                     <div class="chat-bubble-author">
-                        ${escapeAuthHtml(author)} ${isAdmin ? adminBadge : ''}
+                        <span>${escapeAuthHtml(author)}</span>
+                        ${getBadgesHTML({ isAdmin, isVerified })}
                     </div>
                     <div>${escapeAuthHtml(text)}</div>
                 `;
@@ -604,11 +628,15 @@ function initChatListener() {
         input.value = '';
 
         const user = window.firebaseAPI.auth.currentUser;
+        const email = user ? (user.email || '') : '';
+        const { isAdmin, isVerified } = getUserRoles(email);
 
         try {
             await window.firebaseAPI.addDoc(window.firebaseAPI.collection(window.firebaseAPI.db, "messages"), {
                 author: currentUser,
-                email: user ? user.email : '', // Save email for robust admin badge validation
+                email: email,
+                isAdmin: isAdmin,
+                isVerified: isVerified,
                 text: text,
                 timestamp: window.firebaseAPI.serverTimestamp()
             });
@@ -630,33 +658,29 @@ function initChatListener() {
         const dockTools = document.querySelector('.dock-tools');
         if (!dockTools) return;
 
-        // Remove any existing admin button first
         const existingAdminBtn = document.getElementById('adminTaskbarBtn');
         const existingAdminPanel = document.getElementById('adminPanel');
         if (existingAdminBtn) existingAdminBtn.remove();
         if (existingAdminPanel) existingAdminPanel.remove();
 
-        // Check if user is logged in and is an admin
-        if (user && user.email && ADMIN_EMAILS.includes(user.email.toLowerCase())) {
-            
-            // 1. Dynamically create the Admin Taskbar Button in the Dock
+        const { isAdmin } = getUserRoles(user?.email);
+
+        if (user && isAdmin) {
             const adminBtn = document.createElement('button');
             adminBtn.className = 'tool-icon-btn';
             adminBtn.id = 'adminTaskbarBtn';
             adminBtn.innerHTML = `<i class="ph ph-shield-star" style="color: #d4836a;"></i><span>Admin</span>`;
             adminBtn.onclick = () => togglePanel('adminPanel', adminBtn);
-            
-            // Insert it before the copyright or chat button
+
             dockTools.appendChild(adminBtn);
 
-            // 2. Dynamically create the Admin Panel HTML container
             const adminPanel = document.createElement('div');
             adminPanel.className = 'floating-panel';
             adminPanel.id = 'adminPanel';
             adminPanel.innerHTML = `
                 <div class="panel-header" style="color: #d4836a;">Admin Control Panel</div>
                 <div style="font-size: 12px; color: #f0f4f1; display: flex; flex-direction: column; gap: 10px; padding: 6px 0;">
-                    <div>Logged in as Admin: <b>${user.email}</b></div>
+                    <div>Logged in as Admin: <b>${escapeAuthHtml(user.email)}</b></div>
                     <button class="panel-item" onclick="App.clearChatMessages()" style="background: rgba(212, 131, 106, 0.2); border-color: rgba(212, 131, 106, 0.4); text-align: center; justify-content: center;">
                         🗑️ Clear All Chat Messages
                     </button>
@@ -664,16 +688,14 @@ function initChatListener() {
             `;
             document.body.appendChild(adminPanel);
         }
-        
-        // ADMIN FUNCTIONS:
-        async function clearChatMessages() {
-            if (!confirm("Are you sure you want to wipe all community chat messages?")) return;
-            try {
-                // Note: In production, batch delete or use a Cloud Function. For a small app, you can delete documents via query.
-                alert("Admin action executed!");
-            } catch (err) {
-                console.error("Error clearing chat:", err);
-            }
+    }
+
+    async function clearChatMessages() {
+        if (!confirm("Are you sure you want to wipe all community chat messages?")) return;
+        try {
+            alert("Admin action executed!");
+        } catch (err) {
+            console.error("Error clearing chat:", err);
         }
     }
 
@@ -690,6 +712,7 @@ function initChatListener() {
         handleAuthSubmit,
         updateChatAuthState,
         sendChatMessage,
+        clearChatMessages,
         openTutorial,
         closeTutorial,
         nextTutorialStep
