@@ -16,3 +16,6 @@ If your track meets all of the above requirements, you can submit your song thro
 
 ## 📄 License
 This project is open-source and available under the [MIT License](LICENSE).
+
+***
+2000+ lines of code across 4 different programming languages.
