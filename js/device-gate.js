@@ -47,12 +47,6 @@
       ? "Skyline's desktop experience is not designed for phones yet. Some controls, panels, and playback features may not work as expected on a small screen. The mobile experience is still being built."
       : "This page is reserved for Skyline's mobile experience. The desktop layout may not behave correctly here. Switch to the desktop version for the full experience.";
     const button = page === "desktop" ? "Continue to mobile page" : "Go to desktop version";
-    const gate = document.createElement("main");
-    gate.className = "skyline-device-gate";
-    gate.setAttribute("role", "alertdialog");
-    gate.setAttribute("aria-modal", "true");
-    gate.setAttribute("aria-labelledby", "skyline-device-title");
-    document.body.appendChild(gate);
 
     // Let visitors intentionally bypass the device warning and use the desktop layout.
     const desktopAnywayButton = document.getElementById("skyline-desktop-anyway");
