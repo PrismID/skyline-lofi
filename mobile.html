@@ -136,7 +136,6 @@
       if(icon) icon.style.transform=expanded?'rotate(-90deg)':'rotate(0deg)';
     }
     document.addEventListener('DOMContentLoaded',()=>{
-      if(window.PlaylistPlayer) window.PlaylistPlayer.init();
       const timeline=document.getElementById('dockTimeline');
       if(timeline){
         timeline.addEventListener('keydown',e=>{
