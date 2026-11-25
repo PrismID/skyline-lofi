@@ -1,21 +1,20 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/13.3.0/firebase-app.js";
-import { getAnalytics } from "https://www.gstatic.com/firebasejs/13.3.0/firebase-analytics.js";
-import { 
-    getAuth, 
-    signInWithEmailAndPassword, 
-    createUserWithEmailAndPassword, 
-    updateProfile, 
-    onAuthStateChanged, 
-    signOut 
+import {
+    getAuth,
+    signInWithEmailAndPassword,
+    createUserWithEmailAndPassword,
+    updateProfile,
+    onAuthStateChanged,
+    signOut
 } from "https://www.gstatic.com/firebasejs/13.3.0/firebase-auth.js";
-import { 
-    getFirestore, 
-    collection, 
-    addDoc, 
-    query, 
-    orderBy, 
-    onSnapshot, 
-    serverTimestamp 
+import {
+    getFirestore,
+    collection,
+    addDoc,
+    query,
+    orderBy,
+    onSnapshot,
+    serverTimestamp
 } from "https://www.gstatic.com/firebasejs/13.3.0/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -24,12 +23,10 @@ const firebaseConfig = {
     projectId: "skyline-75fec",
     storageBucket: "skyline-75fec.firebasestorage.app",
     messagingSenderId: "144628898410",
-    appId: "1:144628898410:web:72fb07422a2feb96ac8813",
-    measurementId: "G-FRGNXJHLRR"
+    appId: "1:144628898410:web:72fb07422a2feb96ac8813"
 };
 
 const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
