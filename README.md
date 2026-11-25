@@ -2,13 +2,13 @@
 
 <img src="assests/logo.svg" alt="Skyline Lofi" width="265" />
 
-### Version 3
+### Version 4
 
 ### A minimalist, cozy lofi player for focus, studying, and late-night vibes.
 
-[![Live App](https://img.shields.io/badge/Launch_Skyline_v3-d4836a?style=for-the-badge&logo=googlechrome&logoColor=white)](https://prismid.github.io/skyline-lofi/)
+[![Live App](https://img.shields.io/badge/Launch_Skyline_v4-d4836a?style=for-the-badge&logo=googlechrome&logoColor=white)](https://prismid.github.io/skyline-lofi/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-2b332f?style=for-the-badge)](LICENSE)
-[![Code Size](https://img.shields.io/badge/Code-2,900%2B_Lines-2b332f?style=for-the-badge)]()
+[![Code Size](https://img.shields.io/badge/Code-3,300%2B_Lines-2b332f?style=for-the-badge)]()
 
 <br />
 
@@ -51,7 +51,7 @@ Want your beats featured on Skyline? To keep the vibe consistent, every submitte
 
 ## 🛠️ Built With
 
-Built from scratch with **2,900+ lines of code** across **HTML, CSS, JavaScript, and JSON**—powered by Firebase Authentication and Cloud Firestore.
+Built from scratch with **3,300+ lines of code** across **HTML, CSS, JavaScript, SVG, and JSON**—powered by Firebase Authentication and Cloud Firestore.
 
 ## 📄 License
 
