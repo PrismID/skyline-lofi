@@ -1,0 +1,330 @@
+/* Skyline mobile layout
+   This file only rearranges the desktop interface for narrow touch screens.
+   All panels, controls, background scenes, and app behavior come from the shared desktop files. */
+
+@media (max-width: 760px), (max-height: 560px) and (pointer: coarse) {
+  html, body {
+    width: 100%;
+    height: 100%;
+    min-height: 100%;
+    overflow: hidden;
+    overscroll-behavior: none;
+  }
+
+  body {
+    -webkit-text-size-adjust: 100%;
+    touch-action: manipulation;
+  }
+
+  .bg-container {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  .bg-container video {
+    width: 100%;
+    height: 100%;
+    min-width: 100%;
+    min-height: 100%;
+    object-fit: cover;
+  }
+
+  .vignette {
+    background: radial-gradient(circle, rgba(13,17,15,.08) 20%, rgba(8,11,10,.78) 100%);
+  }
+
+  .top-header {
+    top: calc(12px + env(safe-area-inset-top));
+    left: 12px;
+    max-width: 48vw;
+  }
+
+  .top-header svg {
+    display: block;
+    width: clamp(142px, 43vw, 185px);
+    height: auto;
+  }
+
+  .top-auth-btn {
+    top: calc(12px + env(safe-area-inset-top));
+    right: 12px;
+    min-height: 36px;
+    padding: 7px 10px;
+    gap: 6px;
+    border-radius: 12px;
+    font-size: 12px;
+    max-width: 34vw;
+    overflow: hidden;
+  }
+
+  .top-auth-btn span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .mobile-desktop-link {
+    position: fixed;
+    top: calc(56px + env(safe-area-inset-top));
+    right: 12px;
+    z-index: 51;
+    min-height: 34px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    padding: 6px 8px;
+    border: 1px solid rgba(255,255,255,.12);
+    border-radius: 11px;
+    background: rgba(22,28,24,.78);
+    color: #b8cbb9;
+    text-decoration: none;
+    font: 700 10px 'Quicksand', sans-serif;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+  }
+
+  .mobile-desktop-link i {
+    color: #d4836a;
+    font-size: 15px;
+  }
+
+  .chillhop-dock {
+    position: fixed;
+    left: 8px;
+    right: 8px;
+    bottom: calc(8px + env(safe-area-inset-bottom));
+    transform: none;
+    width: auto;
+    max-width: none;
+    height: auto;
+    min-height: 0;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      "track"
+      "controls"
+      "progress"
+      "tools";
+    align-items: center;
+    justify-content: stretch;
+    gap: 5px;
+    padding: 9px 11px 7px;
+    border-radius: 17px;
+    background: rgba(22,28,24,.88);
+    border-color: rgba(255,255,255,.12);
+    box-shadow: 0 10px 35px rgba(0,0,0,.58);
+    z-index: 300;
+  }
+
+  .dock-track-info {
+    grid-area: track;
+    width: 100%;
+    min-width: 0;
+    max-width: none;
+    gap: 10px;
+    padding: 0 2px;
+  }
+
+  .dock-art {
+    width: 38px;
+    height: 38px;
+    border-radius: 9px;
+    font-size: 17px;
+  }
+
+  .dock-meta .dock-title {
+    font-size: 12px;
+    margin-bottom: 2px;
+  }
+
+  .dock-meta .dock-artist {
+    font-size: 10px;
+  }
+
+  .dock-center-controls {
+    display: contents;
+    max-width: none;
+    margin: 0;
+    gap: 0;
+  }
+
+  .dock-buttons {
+    grid-area: controls;
+    display: flex;
+    width: 100%;
+    justify-content: center;
+    gap: clamp(20px, 7vw, 30px);
+    padding: 1px 0;
+  }
+
+  .dock-btn {
+    min-width: 34px;
+    min-height: 34px;
+    font-size: 18px;
+    padding: 4px;
+    border-radius: 50%;
+  }
+
+  .dock-btn.main-play {
+    width: 39px;
+    height: 39px;
+    min-width: 39px;
+    min-height: 39px;
+    font-size: 15px;
+  }
+
+  .dock-progress-wrapper {
+    grid-area: progress;
+    display: flex;
+    width: 100%;
+    min-width: 0;
+    gap: 8px;
+    font-size: 9px;
+    padding: 0 2px;
+  }
+
+  .dock-timeline {
+    height: 20px;
+    min-width: 0;
+  }
+
+  .dock-timeline::before,
+  .dock-timeline-fill {
+    height: 4px;
+  }
+
+  .dock-tools {
+    grid-area: tools;
+    display: grid;
+    width: 100%;
+    grid-template-columns: repeat(auto-fit, minmax(30px, 1fr));
+    align-items: center;
+    justify-content: stretch;
+    gap: 1px;
+    padding-top: 3px;
+    border-top: 1px solid rgba(255,255,255,.07);
+  }
+
+  .tool-icon-btn {
+    width: 100%;
+    min-width: 0;
+    min-height: 30px;
+    padding: 4px 0;
+    gap: 0;
+    border-radius: 8px;
+  }
+
+  .tool-icon-btn i {
+    font-size: 18px;
+  }
+
+  .tool-icon-btn span {
+    display: none !important;
+  }
+
+  .floating-panel {
+    position: fixed;
+    left: 10px;
+    right: 10px;
+    bottom: calc(190px + env(safe-area-inset-bottom));
+    width: auto;
+    max-width: 440px;
+    max-height: calc(100svh - 230px - env(safe-area-inset-top));
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+    padding: 15px;
+    border-radius: 16px;
+    z-index: 250;
+  }
+
+  .panel-header {
+    font-size: 10px;
+    margin-bottom: 10px;
+  }
+
+  .panel-list {
+    max-height: min(34vh, 260px);
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .panel-item {
+    min-height: 42px;
+    padding: 10px 11px;
+    font-size: 12px;
+  }
+
+  .auth-modal-overlay {
+    padding: 14px;
+    padding-bottom: calc(14px + env(safe-area-inset-bottom));
+    overflow-y: auto;
+    align-items: center;
+  }
+
+  .auth-modal-card {
+    width: 100%;
+    max-width: 400px;
+    max-height: calc(100svh - 28px - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+    overflow-y: auto;
+    padding: 27px 22px;
+    border-radius: 20px;
+  }
+
+  .auth-header-title {
+    font-size: 21px;
+  }
+
+  .auth-input {
+    min-height: 44px;
+    font-size: 16px;
+  }
+
+  .auth-submit-btn {
+    min-height: 44px;
+  }
+}
+
+@media (max-width: 360px) {
+  .top-header svg {
+    width: 138px;
+  }
+
+  .mobile-desktop-link {
+    right: 12px;
+    top: calc(54px + env(safe-area-inset-top));
+    padding: 6px;
+    font-size: 9px;
+  }
+
+  .top-auth-btn {
+    right: 9px;
+    padding: 7px 8px;
+    font-size: 11px;
+  }
+
+  .chillhop-dock {
+    left: 6px;
+    right: 6px;
+    padding-left: 8px;
+    padding-right: 8px;
+  }
+
+  .dock-buttons {
+    gap: 17px;
+  }
+
+  .tool-icon-btn i {
+    font-size: 16px;
+  }
+
+  .floating-panel {
+    left: 7px;
+    right: 7px;
+    bottom: calc(182px + env(safe-area-inset-bottom));
+    padding: 12px;
+  }
+}
