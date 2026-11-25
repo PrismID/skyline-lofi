@@ -721,7 +721,6 @@ const App = (() => {
             }
 
             const data = snap.data() || {};
-            console.log("Firestore access_lists:", data);
             adminEmailsList = Array.isArray(data.admin_emails) ? data.admin_emails : [];
             verifiedEmailsList = Array.isArray(data.verified_emails) ? data.verified_emails : [];
 
