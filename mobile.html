@@ -2,37 +2,157 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="theme-color" content="#0d110f" />
-  <title>Skyline Mobile · Coming Soon</title>
+  <meta name="description" content="Skyline Mobile — your cozy lofi retreat, made for listening on the go." />
+  <title>Skyline Mobile · Lofi retreat</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@500;600;700&family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  <link rel="preload" href="./bg/rain.mp4" as="video" type="video/mp4" />
   <style>
-    * { box-sizing: border-box; }
-    body { margin: 0; min-height: 100svh; display: grid; place-items: center; padding: 24px;
-      background: radial-gradient(ellipse at 50% 0%, rgba(82,104,87,.28), transparent 55%), #0d110f;
-      color: #f0f4f1; font-family: 'Quicksand', sans-serif; }
-    main { width: min(100%, 460px); padding: 38px 30px; text-align: center;
-      background: rgba(22,28,24,.92); border: 1px solid rgba(255,255,255,.12);
-      border-radius: 24px; box-shadow: 0 24px 80px rgba(0,0,0,.48); }
-    .mark { color: #d4836a; font-size: 13px; font-weight: 700; letter-spacing: 4px; text-transform: uppercase; }
-    h1 { margin: 18px 0 12px; font: 700 clamp(27px, 7vw, 36px) 'Comfortaa', sans-serif; }
-    p { color: #b8cbb9; line-height: 1.7; margin: 0 0 24px; }
-    .status { display: inline-block; padding: 8px 12px; margin-bottom: 22px; border-radius: 99px;
-      background: rgba(212,131,106,.14); color: #e5a995; font-size: 12px; font-weight: 700; }
-    a { display: inline-flex; justify-content: center; width: 100%; padding: 14px 18px;
-      border-radius: 12px; background: #d4836a; color: #fff; text-decoration: none; font-weight: 700; }
+    :root{color-scheme:dark;--bg:#0d110f;--panel:rgba(22,28,24,.88);--line:rgba(255,255,255,.11);--text:#f0f4f1;--muted:#a9bbaa;--soft:#829984;--accent:#d4836a;--accent2:#e59866}
+    *{box-sizing:border-box}
+    html{min-height:100%;background:var(--bg)}
+    body{margin:0;min-height:100svh;padding:0 0 calc(26px + env(safe-area-inset-bottom));background:var(--bg);color:var(--text);font-family:'Quicksand',sans-serif;overflow-x:hidden}
+    button{font:inherit;-webkit-tap-highlight-color:transparent}
+    .scene{position:fixed;inset:0;z-index:-2;overflow:hidden;background:radial-gradient(ellipse at 50% 5%,rgba(82,104,87,.42),transparent 55%),#0d110f}
+    .scene video{width:100%;height:100%;object-fit:cover;opacity:.3;filter:saturate(.75)}
+    .scene:after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(9,13,11,.38),rgba(9,13,11,.82) 55%,#0d110f)}
+    .shell{width:min(100%,560px);margin:0 auto;padding:calc(18px + env(safe-area-inset-top)) 20px 0}
+    header{display:flex;align-items:center;justify-content:space-between;margin-bottom:28px}
+    .brand{display:flex;align-items:center;gap:10px}
+    .brand-mark{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;background:rgba(82,104,87,.55);color:#f0f4f1;font-size:20px}
+    .brand-name{font:700 21px 'Comfortaa',sans-serif;letter-spacing:-1px}
+    .brand-tag{font-size:9px;letter-spacing:2.8px;color:#d4ad94;margin-top:3px}
+    .eyebrow{font-size:10px;letter-spacing:2.2px;text-transform:uppercase;color:var(--soft);font-weight:700}
+    .now-playing{margin:0 0 18px;text-align:center}
+    .now-playing h1{font:600 25px 'Comfortaa',sans-serif;margin:8px 0 0}
+    .player-card{padding:22px;border:1px solid var(--line);border-radius:26px;background:var(--panel);backdrop-filter:blur(18px);box-shadow:0 22px 70px rgba(0,0,0,.35)}
+    .art-wrap{width:min(100%,310px);aspect-ratio:1;margin:0 auto 23px;border-radius:22px;overflow:hidden;background:linear-gradient(135deg,#526857,#d4836a);box-shadow:0 16px 40px rgba(0,0,0,.3);display:grid;place-items:center}
+    .art-wrap img{width:100%;height:100%;object-fit:cover}
+    #currentArtFallback{font-size:76px}
+    .track-row{display:flex;align-items:center;gap:14px;min-width:0}
+    .track-copy{min-width:0;flex:1}
+    .track-title{font:700 19px 'Comfortaa',sans-serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .track-artist{font-size:13px;color:var(--muted);margin-top:6px}
+    .sound-label{font-size:10px;color:var(--soft);letter-spacing:1.4px;text-transform:uppercase;white-space:nowrap}
+    .timeline{margin-top:23px}
+    .time-row{display:flex;justify-content:space-between;color:var(--muted);font-size:11px;font-variant-numeric:tabular-nums;margin-bottom:9px}
+    .progress-track{height:7px;border-radius:99px;background:rgba(255,255,255,.13);position:relative;touch-action:pan-y;cursor:pointer}
+    .progress-fill{height:100%;width:0;border-radius:99px;background:linear-gradient(90deg,var(--accent),var(--accent2));position:relative}
+    .progress-fill:after{content:"";position:absolute;right:-5px;top:50%;width:13px;height:13px;transform:translateY(-50%);border-radius:50%;background:#f0c1a8;box-shadow:0 0 12px rgba(212,131,106,.65)}
+    .controls{display:flex;align-items:center;justify-content:center;gap:24px;margin:24px 0 5px}
+    .control{border:0;background:transparent;color:#dce5dd;width:42px;height:46px;display:grid;place-items:center;font-size:25px;border-radius:50%;cursor:pointer}
+    .control:active{background:rgba(255,255,255,.1);transform:scale(.96)}
+    .control.play{width:64px;height:64px;background:var(--accent);color:white;font-size:29px;box-shadow:0 8px 24px rgba(212,131,106,.28)}
+    .control.play:active{background:var(--accent2)}
+    .lower-actions{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:18px}
+    .action{border:1px solid var(--line);background:rgba(255,255,255,.055);color:var(--muted);border-radius:14px;padding:13px 12px;display:flex;align-items:center;justify-content:center;gap:9px;font-size:12px;font-weight:700;cursor:pointer}
+    .action i{font-size:18px;color:var(--accent2)}
+    .section{margin-top:20px;border:1px solid var(--line);border-radius:20px;background:rgba(22,28,24,.78);overflow:hidden;backdrop-filter:blur(14px)}
+    .section-head{width:100%;border:0;background:transparent;color:var(--text);padding:17px 18px;display:flex;justify-content:space-between;align-items:center;font-weight:700;text-align:left;cursor:pointer}
+    .section-head span{display:flex;align-items:center;gap:10px}
+    .section-head i{color:var(--accent2);font-size:19px}
+    .section-content{padding:0 14px 14px}
+    .section-content[hidden]{display:none}
+    .panel-list{display:flex;flex-direction:column;gap:7px}
+    .panel-item{display:flex;align-items:center;width:100%;min-height:46px;padding:11px 13px;border:1px solid transparent;border-radius:12px;background:rgba(255,255,255,.045);color:#dce5dd;text-align:left;font-size:13px;cursor:pointer}
+    .panel-item.active{background:rgba(212,131,106,.16);border-color:rgba(212,131,106,.35);color:#f0c1a8}
+    .empty-note{padding:12px;color:var(--soft);font-size:12px;text-align:center}
+    .footer{text-align:center;color:#718574;font-size:11px;padding:24px 0 8px;letter-spacing:.4px}
+    .footer a{color:#d4ad94;text-decoration:none}
+    @media(min-width:520px){.shell{padding-top:28px}.player-card{padding:28px}.art-wrap{width:300px}}
+    @media(prefers-reduced-motion:reduce){*,*:before,*:after{scroll-behavior:auto!important;transition:none!important}}
   </style>
 </head>
 <body data-device-page="mobile">
-  <main id="mobileComingSoon" hidden>
-    <div class="mark">Skyline · Lofi retreat</div>
-    <h1>Something cozy is on the way.</h1>
-    <span class="status">Mobile experience in progress</span>
-    <p>We're working on a Skyline experience made for your phone. The mobile version isn't ready just yet, but this is where it will live.</p>
-    <a href="./index.html">Back to desktop site</a>
+  <div class="scene" aria-hidden="true"><video src="./bg/rain.mp4" autoplay muted loop playsinline></video></div>
+  <main class="shell">
+    <header>
+      <div class="brand">
+        <div class="brand-mark"><i class="ph ph-leaf"></i></div>
+        <div><div class="brand-name">skyline</div><div class="brand-tag">LOFI RETREAT</div></div>
+      </div>
+      <span class="eyebrow">Made to unwind</span>
+    </header>
+
+    <section class="now-playing" aria-label="Now playing">
+      <div class="eyebrow">Your little escape</div>
+      <h1>Find your quiet.</h1>
+    </section>
+
+    <section class="player-card" aria-label="Music player">
+      <div class="art-wrap" id="currentArt">
+        <img id="currentArtImg" src="" alt="Album artwork" style="display:none" />
+        <span id="currentArtFallback" aria-hidden="true">🌿</span>
+      </div>
+      <div class="track-row">
+        <div class="track-copy">
+          <div class="track-title" id="currentTrackTitle">Loading your soundtrack…</div>
+          <div class="track-artist" id="currentTrackArtist">Skyline sound team</div>
+        </div>
+        <span class="sound-label">Now playing</span>
+      </div>
+      <div class="timeline">
+        <div class="time-row"><span id="currentTime">00:00</span><span id="totalTime">00:00</span></div>
+        <div class="progress-track" id="dockTimeline" role="slider" aria-label="Seek through track" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" tabindex="0">
+          <div class="progress-fill" id="progressFill"></div>
+        </div>
+      </div>
+      <div class="controls">
+        <button class="control" type="button" onclick="toggleMute()" id="muteBtn" aria-label="Mute or unmute"><i class="ph ph-speaker-high"></i></button>
+        <button class="control" type="button" onclick="prevTrack()" aria-label="Previous track"><i class="ph ph-skip-back"></i></button>
+        <button class="control play" type="button" onclick="togglePlay()" id="playPauseBtn" aria-label="Play or pause"><i class="ph ph-play" id="playIcon"></i></button>
+        <button class="control" type="button" onclick="nextTrack()" aria-label="Next track"><i class="ph ph-skip-forward"></i></button>
+        <span class="control" aria-hidden="true"><i class="ph ph-headphones"></i></span>
+      </div>
+    </section>
+
+    <section class="section">
+      <button class="section-head" type="button" aria-expanded="true" aria-controls="playlistContent" onclick="toggleMobileSection(this)">
+        <span><i class="ph ph-music-notes"></i> Your playlist</span><i class="ph ph-caret-down"></i>
+      </button>
+      <div class="section-content" id="playlistContent"><div class="panel-list" id="dynamicTrackList"><div class="empty-note">Loading tracks…</div></div></div>
+    </section>
+
+    <section class="section">
+      <button class="section-head" type="button" aria-expanded="false" aria-controls="historyContent" onclick="toggleMobileSection(this)">
+        <span><i class="ph ph-clock-counter-clockwise"></i> Recently played</span><i class="ph ph-caret-down"></i>
+      </button>
+      <div class="section-content" id="historyContent" hidden><div class="panel-list" id="historyList"><div class="empty-note">Your listening history will appear here.</div></div></div>
+    </section>
+
+    <div class="footer">A calmer corner of the internet · <a href="./index.html">Desktop site</a></div>
   </main>
+  <script>
+    function toggleMobileSection(button){
+      const content=document.getElementById(button.getAttribute('aria-controls'));
+      const expanded=button.getAttribute('aria-expanded')==='true';
+      button.setAttribute('aria-expanded',String(!expanded));
+      content.hidden=expanded;
+      const icon=button.querySelector('.ph-caret-down');
+      if(icon) icon.style.transform=expanded?'rotate(-90deg)':'rotate(0deg)';
+    }
+    document.addEventListener('DOMContentLoaded',()=>{
+      const timeline=document.getElementById('dockTimeline');
+      if(timeline){
+        timeline.addEventListener('keydown',e=>{
+          if(e.key==='ArrowRight'||e.key==='ArrowLeft'){
+            e.preventDefault();
+            const rect=timeline.getBoundingClientRect();
+            const pct=e.key==='ArrowRight'?Math.min(1,(PlaylistPlayerTime()+5)/100):Math.max(0,(PlaylistPlayerTime()-5)/100);
+            const x=rect.left+rect.width*pct;
+            timeline.dispatchEvent(new PointerEvent('pointerdown',{bubbles:true,clientX:x,clientY:rect.top+rect.height/2,pointerId:1}));
+            timeline.dispatchEvent(new PointerEvent('pointerup',{bubbles:true,pointerId:1}));
+          }
+        });
+      }
+    });
+    function PlaylistPlayerTime(){return parseFloat(document.getElementById('progressFill')?.style.width)||0;}
+  </script>
+  <script src="./js/playlist.js"></script>
   <script src="./js/device-gate.js"></script>
 </body>
 </html>
