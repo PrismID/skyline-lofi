@@ -11,15 +11,8 @@ const App = (() => {
     let chatUnsubscribe = null;
     let currentTutStep = 0;
 
-    // ADMIN EMAIL LIST:
-    const ADMIN_EMAILS = [
-        "dito.hdez@gmail.com"
-    ];
-
-    // VERIFIED EMAIL LIST:
-    const VERIFIED_EMAILS = [
-        "dito.hdez@gmail.com",
-    ];
+    let adminEmailsList = [];
+    let verifiedEmailsList = [];
 
     const VERIFIED_CHECK_SVG = `
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="13" height="13"><path fill="#42a5f5" d="M24,2l4.5,5L35,5l1.5,6.5L43,13l-2,6.5l5,4.5l-5,4.5l2,6.5l-6.5,1.5L35,43l-6.5-2L24,46l-4.5-5L13,43l-1.5-6.5 L5,35l2-6.5L2,24l5-4.5L5,13l6.5-1.5L13,5l6.5,2L24,2z"/><path fill="#e3f2fd" d="M34.6,14.6L21,28.2l-5.6-5.6l-2.8,2.8l8.4,8.4l16.4-16.4L34.6,14.6z"/></svg>
@@ -72,8 +65,8 @@ const App = (() => {
 
     function getUserRoles(email) {
         const cleanEmail = (email || "").trim().toLowerCase();
-        const isAdmin = ADMIN_EMAILS.some(e => e.toLowerCase() === cleanEmail);
-        const isVerified = isAdmin || VERIFIED_EMAILS.some(e => e.toLowerCase() === cleanEmail);
+        const isAdmin = adminEmailsList.some(e => String(e).trim().toLowerCase() === cleanEmail);
+        const isVerified = isAdmin || verifiedEmailsList.some(e => String(e).trim().toLowerCase() === cleanEmail);
         return { isAdmin, isVerified };
     }
 
@@ -129,7 +122,42 @@ const App = (() => {
         });
     }
 
-    function init() {
+    function applyUserAuthUI(user) {
+        const openAuthBtn = document.getElementById('openAuthBtn');
+        if (user) {
+            currentUser = user.displayName || user.email.split('@')[0] || 'Listener';
+            updateChatAuthState();
+            checkAdminAccess(user);
+
+            if (openAuthBtn) {
+                const roles = getUserRoles(user.email);
+                const parts = [];
+                if (roles.isAdmin) parts.push(ADMIN_SHIELD_HTML);
+                if (roles.isVerified) parts.push(`<span class="chat-badge-verified" title="Verified User">${VERIFIED_CHECK_SVG}</span>`);
+                if (!roles.isAdmin && !roles.isVerified) parts.push(`<i class="ph ph-check-circle" style="color: #d4836a;"></i>`);
+                openAuthBtn.innerHTML = `${parts.join("")}<span>${escapeAuthHtml(currentUser)}</span>`;
+                openAuthBtn.title = 'Account Connected (Click to Log Out)';
+                openAuthBtn.onclick = (e) => {
+                    e.preventDefault();
+                    if (confirm(`Logged in as ${currentUser}. Do you want to log out?`)) {
+                        window.firebaseAPI.signOut(window.firebaseAPI.auth).catch(err => console.warn('Sign out error:', err));
+                    }
+                };
+            }
+        } else {
+            currentUser = null;
+            updateChatAuthState();
+            checkAdminAccess(null);
+
+            if (openAuthBtn) {
+                openAuthBtn.innerHTML = `<i class="ph ph-user"></i><span>Log in</span>`;
+                openAuthBtn.title = 'Log In';
+                openAuthBtn.onclick = (e) => openAuthModal(e);
+            }
+        }
+    }
+
+    async function init() {
         const defaultBgBtn = document.querySelector('.bg-btn');
         switchBackground('vid-rain', defaultBgBtn);
 
@@ -143,41 +171,18 @@ const App = (() => {
         initChatListener();
 
         if (window.firebaseAPI) {
-            window.firebaseAPI.onAuthStateChanged(window.firebaseAPI.auth, (user) => {
-                const openAuthBtn = document.getElementById('openAuthBtn');
-                if (user) {
-                    currentUser = user.displayName || user.email.split('@')[0] || 'Listener';
-                    const { isVerified } = getUserRoles(user.email);
-                    updateChatAuthState();
-                    checkAdminAccess(user);
-
-                    if (openAuthBtn) {
-                        const roles = getUserRoles(user.email);
-                        const parts = [];
-                        if (roles.isAdmin) parts.push(ADMIN_SHIELD_HTML);
-                        if (roles.isVerified) parts.push(`<span class="chat-badge-verified" title="Verified User">${VERIFIED_CHECK_SVG}</span>`);
-                        if (!roles.isAdmin && !roles.isVerified) parts.push(`<i class="ph ph-check-circle" style="color: #d4836a;"></i>`);
-                        openAuthBtn.innerHTML = `${parts.join("")}<span>${escapeAuthHtml(currentUser)}</span>`;
-                        openAuthBtn.title = 'Account Connected (Click to Log Out)';
-                        openAuthBtn.onclick = (e) => {
-                            e.preventDefault();
-                            if (confirm(`Logged in as ${currentUser}. Do you want to log out?`)) {
-                                window.firebaseAPI.signOut(window.firebaseAPI.auth).catch(err => console.warn('Sign out error:', err));
-                            }
-                        };
-                    }
-                } else {
-                    currentUser = null;
-                    updateChatAuthState();
-                    checkAdminAccess(null);
-
-                    if (openAuthBtn) {
-                        openAuthBtn.innerHTML = `<i class="ph ph-user"></i><span>Log in</span>`;
-                        openAuthBtn.title = 'Log In';
-                        openAuthBtn.onclick = (e) => openAuthModal(e);
-                    }
+            window.firebaseAPI.onAuthStateChanged(window.firebaseAPI.auth, async (user) => {
+                if (user && adminEmailsList.length === 0 && verifiedEmailsList.length === 0) {
+                    await loadAccessLists();
                 }
+                applyUserAuthUI(user);
             });
+        }
+
+        await loadAccessLists();
+
+        if (window.firebaseAPI?.auth?.currentUser) {
+            applyUserAuthUI(window.firebaseAPI.auth.currentUser);
         }
 
         document.addEventListener('click', handleOutsideClick);
@@ -696,6 +701,36 @@ const App = (() => {
             alert("Admin action executed!");
         } catch (err) {
             console.error("Error clearing chat:", err);
+        }
+    }
+
+    async function loadAccessLists() {
+        const api = window.firebaseAPI;
+        if (!api || !api.db || !api.doc || !api.getDoc) {
+            adminEmailsList = [];
+            verifiedEmailsList = [];
+            return { adminEmails: adminEmailsList, verifiedEmails: verifiedEmailsList };
+        }
+
+        try {
+            const snap = await api.getDoc(api.doc(api.db, "config", "access_lists"));
+            if (!snap.exists()) {
+                adminEmailsList = [];
+                verifiedEmailsList = [];
+                return { adminEmails: adminEmailsList, verifiedEmails: verifiedEmailsList };
+            }
+
+            const data = snap.data() || {};
+            console.log("Firestore access_lists:", data);
+            adminEmailsList = Array.isArray(data.admin_emails) ? data.admin_emails : [];
+            verifiedEmailsList = Array.isArray(data.verified_emails) ? data.verified_emails : [];
+
+            return { adminEmails: adminEmailsList, verifiedEmails: verifiedEmailsList };
+        } catch (err) {
+            console.warn("Failed to load access lists from Firestore:", err);
+            adminEmailsList = [];
+            verifiedEmailsList = [];
+            return { adminEmails: adminEmailsList, verifiedEmails: verifiedEmailsList };
         }
     }
 
