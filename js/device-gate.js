@@ -27,10 +27,14 @@
     .skyline-device-card h1 { font-family: 'Comfortaa', sans-serif; font-size: clamp(25px, 6vw, 34px);
       line-height: 1.2; margin: 0 0 14px; }
     .skyline-device-card p { color: #b8cbb9; font-size: 15px; line-height: 1.7; margin: 0 0 24px; }
-    .skyline-device-card a { display: inline-flex; justify-content: center; width: 100%;
-      padding: 14px 18px; border-radius: 12px; background: #d4836a; color: #fff;
-      text-decoration: none; font-weight: 700; transition: background .2s ease, transform .2s ease; }
-    .skyline-device-card a:hover { background: #e59866; transform: translateY(-1px); }
+    .skyline-device-card a, .skyline-device-card button { display: inline-flex; justify-content: center;
+      align-items: center; width: 100%; min-height: 48px; padding: 14px 18px; border-radius: 12px;
+      background: #d4836a; color: #fff; text-decoration: none; font: inherit; font-weight: 700;
+      border: 0; cursor: pointer; transition: background .2s ease, transform .2s ease; }
+    .skyline-device-card a:hover, .skyline-device-card button:hover { background: #e59866; transform: translateY(-1px); }
+    .skyline-device-card button.skyline-device-secondary { margin-top: 10px; background: rgba(255,255,255,.08);
+      border: 1px solid rgba(255,255,255,.14); color: #b8cbb9; }
+    .skyline-device-card button.skyline-device-secondary:hover { background: rgba(255,255,255,.14); color: #fff; }
     .skyline-device-note { display: block; margin-top: 16px; color: #829984; font-size: 12px; }
     @media (max-width: 420px) { .skyline-device-card { padding: 30px 22px; } }
   `;
@@ -54,9 +58,16 @@
         <h1 id="skyline-device-title">${heading}</h1>
         <p>${message}</p>
         <a href="${target}">${button}</a>
+        ${page === "desktop" ? '<button type="button" class="skyline-device-secondary" id="skyline-desktop-anyway">Visit desktop site anyway</button>' : ''}
         <span class="skyline-device-note">You can return to this page whenever you like.</span>
       </section>`;
     document.body.appendChild(gate);
+
+    // Let visitors intentionally bypass the device warning and use the desktop layout.
+    const desktopAnywayButton = document.getElementById("skyline-desktop-anyway");
+    if (desktopAnywayButton) {
+      desktopAnywayButton.addEventListener("click", () => gate.remove());
+    }
     return;
   }
 
