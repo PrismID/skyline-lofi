@@ -52,15 +52,6 @@
     gate.setAttribute("role", "alertdialog");
     gate.setAttribute("aria-modal", "true");
     gate.setAttribute("aria-labelledby", "skyline-device-title");
-    gate.innerHTML = `
-      <section class="skyline-device-card">
-        <div class="skyline-device-mark">Skyline · Lofi retreat</div>
-        <h1 id="skyline-device-title">${heading}</h1>
-        <p>${message}</p>
-        <a href="${target}">${button}</a>
-        ${page === "desktop" ? '<button type="button" class="skyline-device-secondary" id="skyline-desktop-anyway">Visit desktop site anyway</button>' : ''}
-        <span class="skyline-device-note">You can return to this page whenever you like.</span>
-      </section>`;
     document.body.appendChild(gate);
 
     // Let visitors intentionally bypass the device warning and use the desktop layout.
