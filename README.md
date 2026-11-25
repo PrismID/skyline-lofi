@@ -42,7 +42,7 @@ Want your beats featured on Skyline? To keep the vibe consistent, every submitte
 
 ### How to Submit
 1. Read the full [Song Upload Guidelines](https://github.com/PrismID/skyline-lofi/wiki/Song-Upload).
-2. Open a [**GitHub Pull Request**](https://github.com/PrismID/skyline-lofi/pulls) with your track *(new to PRs? Check out [GitHub's Pull Request Quickstart](https://docs.github.com/en/pull-requests/get-started/pull-request-quickstart))*.
+2. Open a [**GitHub Issue**](https://github.com/PrismID/skyline-lofi/issues) with your track *(new to Issues? Check out [GitHub's Creating an Issue Article](https://docs.github.com/en/issues/tracking-your-work-with-issues/using-issues/creating-an-issue))*.
 3. **The Skyline Sound Team** will review your track before merging it into the live rotation.
 
 > ⚠️ **Warning:** Submitting copyrighted music or violating the [submission guidelines](https://github.com/PrismID/skyline-lofi/wiki/Song-Upload) may result in a temporary or permanent ban from future submissions.
