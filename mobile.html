@@ -1,158 +1,1034 @@
 <!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <meta name="theme-color" content="#0d110f" />
-  <meta name="description" content="Skyline Mobile — your cozy lofi retreat, made for listening on the go." />
-  <title>Skyline Mobile · Lofi retreat</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@500;600;700&family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <script src="https://unpkg.com/@phosphor-icons/web"></script>
-  <link rel="preload" href="./bg/rain.mp4" as="video" type="video/mp4" />
-  <style>
-    :root{color-scheme:dark;--bg:#0d110f;--panel:rgba(22,28,24,.88);--line:rgba(255,255,255,.11);--text:#f0f4f1;--muted:#a9bbaa;--soft:#829984;--accent:#d4836a;--accent2:#e59866}
-    *{box-sizing:border-box}
-    html{min-height:100%;background:var(--bg)}
-    body{margin:0;min-height:100svh;padding:0 0 calc(26px + env(safe-area-inset-bottom));background:var(--bg);color:var(--text);font-family:'Quicksand',sans-serif;overflow-x:hidden}
-    button{font:inherit;-webkit-tap-highlight-color:transparent}
-    .scene{position:fixed;inset:0;z-index:-2;overflow:hidden;background:radial-gradient(ellipse at 50% 5%,rgba(82,104,87,.42),transparent 55%),#0d110f}
-    .scene video{width:100%;height:100%;object-fit:cover;opacity:.3;filter:saturate(.75)}
-    .scene:after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(9,13,11,.38),rgba(9,13,11,.82) 55%,#0d110f)}
-    .shell{width:min(100%,560px);margin:0 auto;padding:calc(18px + env(safe-area-inset-top)) 20px 0}
-    header{display:flex;align-items:center;justify-content:space-between;margin-bottom:28px}
-    .brand{display:flex;align-items:center;gap:10px}
-    .brand-mark{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;background:rgba(82,104,87,.55);color:#f0f4f1;font-size:20px}
-    .brand-name{font:700 21px 'Comfortaa',sans-serif;letter-spacing:-1px}
-    .brand-tag{font-size:9px;letter-spacing:2.8px;color:#d4ad94;margin-top:3px}
-    .eyebrow{font-size:10px;letter-spacing:2.2px;text-transform:uppercase;color:var(--soft);font-weight:700}
-    .now-playing{margin:0 0 18px;text-align:center}
-    .now-playing h1{font:600 25px 'Comfortaa',sans-serif;margin:8px 0 0}
-    .player-card{padding:22px;border:1px solid var(--line);border-radius:26px;background:var(--panel);backdrop-filter:blur(18px);box-shadow:0 22px 70px rgba(0,0,0,.35)}
-    .art-wrap{width:min(100%,310px);aspect-ratio:1;margin:0 auto 23px;border-radius:22px;overflow:hidden;background:linear-gradient(135deg,#526857,#d4836a);box-shadow:0 16px 40px rgba(0,0,0,.3);display:grid;place-items:center}
-    .art-wrap img{width:100%;height:100%;object-fit:cover}
-    #currentArtFallback{font-size:76px}
-    .track-row{display:flex;align-items:center;gap:14px;min-width:0}
-    .track-copy{min-width:0;flex:1}
-    .track-title{font:700 19px 'Comfortaa',sans-serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-    .track-artist{font-size:13px;color:var(--muted);margin-top:6px}
-    .sound-label{font-size:10px;color:var(--soft);letter-spacing:1.4px;text-transform:uppercase;white-space:nowrap}
-    .timeline{margin-top:23px}
-    .time-row{display:flex;justify-content:space-between;color:var(--muted);font-size:11px;font-variant-numeric:tabular-nums;margin-bottom:9px}
-    .progress-track{height:7px;border-radius:99px;background:rgba(255,255,255,.13);position:relative;touch-action:pan-y;cursor:pointer}
-    .progress-fill{height:100%;width:0;border-radius:99px;background:linear-gradient(90deg,var(--accent),var(--accent2));position:relative}
-    .progress-fill:after{content:"";position:absolute;right:-5px;top:50%;width:13px;height:13px;transform:translateY(-50%);border-radius:50%;background:#f0c1a8;box-shadow:0 0 12px rgba(212,131,106,.65)}
-    .controls{display:flex;align-items:center;justify-content:center;gap:24px;margin:24px 0 5px}
-    .control{border:0;background:transparent;color:#dce5dd;width:42px;height:46px;display:grid;place-items:center;font-size:25px;border-radius:50%;cursor:pointer}
-    .control:active{background:rgba(255,255,255,.1);transform:scale(.96)}
-    .control.play{width:64px;height:64px;background:var(--accent);color:white;font-size:29px;box-shadow:0 8px 24px rgba(212,131,106,.28)}
-    .control.play:active{background:var(--accent2)}
-    .lower-actions{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:18px}
-    .action{border:1px solid var(--line);background:rgba(255,255,255,.055);color:var(--muted);border-radius:14px;padding:13px 12px;display:flex;align-items:center;justify-content:center;gap:9px;font-size:12px;font-weight:700;cursor:pointer}
-    .action i{font-size:18px;color:var(--accent2)}
-    .section{margin-top:20px;border:1px solid var(--line);border-radius:20px;background:rgba(22,28,24,.78);overflow:hidden;backdrop-filter:blur(14px)}
-    .section-head{width:100%;border:0;background:transparent;color:var(--text);padding:17px 18px;display:flex;justify-content:space-between;align-items:center;font-weight:700;text-align:left;cursor:pointer}
-    .section-head span{display:flex;align-items:center;gap:10px}
-    .section-head i{color:var(--accent2);font-size:19px}
-    .section-content{padding:0 14px 14px}
-    .section-content[hidden]{display:none}
-    .panel-list{display:flex;flex-direction:column;gap:7px}
-    .panel-item{display:flex;align-items:center;width:100%;min-height:46px;padding:11px 13px;border:1px solid transparent;border-radius:12px;background:rgba(255,255,255,.045);color:#dce5dd;text-align:left;font-size:13px;cursor:pointer}
-    .panel-item.active{background:rgba(212,131,106,.16);border-color:rgba(212,131,106,.35);color:#f0c1a8}
-    .empty-note{padding:12px;color:var(--soft);font-size:12px;text-align:center}
-    .footer{text-align:center;color:#718574;font-size:11px;padding:24px 0 8px;letter-spacing:.4px}
-    .footer a{color:#d4ad94;text-decoration:none}
-    @media(min-width:520px){.shell{padding-top:28px}.player-card{padding:28px}.art-wrap{width:300px}}
-    @media(prefers-reduced-motion:reduce){*,*:before,*:after{scroll-behavior:auto!important;transition:none!important}}
-  </style>
-</head>
-<body data-device-page="mobile">
-  <div class="scene" aria-hidden="true"><video src="./bg/rain.mp4" autoplay muted loop playsinline></video></div>
-  <main class="shell">
-    <header>
-      <div class="brand">
-        <div class="brand-mark"><i class="ph ph-leaf"></i></div>
-        <div><div class="brand-name">skyline</div><div class="brand-tag">LOFI RETREAT</div></div>
-      </div>
-      <span class="eyebrow">Made to unwind</span>
-    </header>
+  <head>
+    <!-- Primary Meta Tags-->
+    <title>Skyline Mobile - Your Seasonal Lofi & Chillhop Retreat</title>
+    <meta
+      name="title"
+      content="Skyline ● Your Seasonal Lofi & Chillhop Retreat"
+    />
+    <meta
+      name="description"
+      content="Immerse yourself in the curated sounds of Skyline. Discover essential seasonal playlists from Spring Vibes to Winter Chill and 2026 futuristic beats."
+    />
+    <meta
+      name="keywords"
+      content="chillhop, lofi, lo-fi, lofi hip hop, seasonal lofi, spring vibes, summer lofi, fall chill, winter lofi, 2026 vibes, music streaming"
+    />
+    <meta name="author" content="Skyline" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta charset="UTF-8" />
+    <!-- Favicon & App Icons -->
+    <link rel="icon" type="image/png" href="./favicon.png" />
+    <link rel="apple-touch-icon" href="./favicon.png" />
+    <link rel="shortcut icon" href="./favicon.png" />
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta
+      property="og:title"
+      content="Skyline ● Your Seasonal Lofi & Chillhop Retreat"
+    />
+    <meta
+      property="og:description"
+      content="Immerse yourself in the curated sounds of Skyline. Discover essential seasonal playlists from Spring Vibes to Winter Chill and 2026 futuristic beats."
+    />
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image" />
+    <meta
+      property="twitter:title"
+      content="Skyline ● Your Seasonal Lofi & Chillhop Retreat"
+    />
+    <meta
+      property="twitter:description"
+      content="Immerse yourself in the curated sounds of Skyline. Discover essential seasonal playlists from Spring Vibes to Winter Chill and 2026 futuristic beats."
+    />
+    <!-- Fonts & Icons & Stylesheets -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@400;700&amp;family=Quicksand:wght@500;600;700&amp;display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <link rel="stylesheet" href="./styles/style.css" />
+    <link rel="stylesheet" href="./styles/mobile.css" />
+  </head>
 
-    <section class="now-playing" aria-label="Now playing">
-      <div class="eyebrow">Your little escape</div>
-      <h1>Find your quiet.</h1>
-    </section>
-
-    <section class="player-card" aria-label="Music player">
-      <div class="art-wrap" id="currentArt">
-        <img id="currentArtImg" src="" alt="Album artwork" style="display:none" />
-        <span id="currentArtFallback" aria-hidden="true">🌿</span>
-      </div>
-      <div class="track-row">
-        <div class="track-copy">
-          <div class="track-title" id="currentTrackTitle">Loading your soundtrack…</div>
-          <div class="track-artist" id="currentTrackArtist">Skyline sound team</div>
+  <body data-device-page="mobile">
+    <!-- BACKGROUND VIDEO LAYERS (Pointing to 'bg/' folder) -->
+    <div class="bg-container">
+      <video
+        id="vid-rain"
+        src="bg/rain.mp4"
+        muted
+        loop
+        playsinline
+        crossorigin="anonymous"
+      ></video>
+      <video
+        id="vid-sunset"
+        src="bg/sunset.mp4"
+        muted
+        loop
+        playsinline
+        crossorigin="anonymous"
+      ></video>
+      <video
+        id="vid-fireplace"
+        src="bg/fireplace.mp4"
+        muted
+        loop
+        playsinline
+        crossorigin="anonymous"
+      ></video>
+      <video
+        id="vid-snow"
+        src="bg/snow.mp4"
+        muted
+        loop
+        playsinline
+        crossorigin="anonymous"
+      ></video>
+      <video
+        id="vid-cyber"
+        src="bg/cyber.mp4"
+        muted
+        loop
+        playsinline
+        crossorigin="anonymous"
+      ></video>
+      <div class="vignette"></div>
+    </div>
+    <!-- TOP EMBEDDED SVG LOGO -->
+    <div class="top-header" onclick="resetToHome()">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 350 56"
+        width="260"
+        height="42"
+      >
+        <defs>
+          <linearGradient id="bg-blend" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#3d4c42" />
+            <stop offset="50%" stop-color="#2c3530" />
+            <stop offset="100%" stop-color="#1b221e" />
+          </linearGradient>
+          <linearGradient id="terracotta" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="#d4836a" />
+            <stop offset="100%" stop-color="#b86248" />
+          </linearGradient>
+          <filter id="subtle-drop" x="-10%" y="-10%" width="120%" height="120%">
+            <feDropShadow
+              dx="0"
+              dy="2"
+              stdDeviation="2"
+              flood-color="#000"
+              flood-opacity="0.3"
+            />
+          </filter>
+        </defs>
+        <g transform="translate(14, 10)" filter="url(#subtle-drop)">
+          <circle cx="18" cy="18" r="18" fill="#526857" opacity="0.5" />
+          <path
+            d="M 6,28 C 13,26 23,27 30,24"
+            stroke="#f0f4f1"
+            stroke-width="2.2"
+            stroke-linecap="round"
+            fill="none"
+          />
+          <path
+            d="M 12,24 C 10.5,20 12,14 16,12 C 20,10 24.5,12 25.5,15.5 C 26.5,19 23,24 18,24 C 15,24 13,25 12,24 Z"
+            fill="#f0f4f1"
+            stroke="#f0f4f1"
+            stroke-width="1"
+            stroke-linejoin="round"
+          />
+          <path
+            d="M 15,16.5 C 18,17 21,19 21,22"
+            stroke="#2c3530"
+            stroke-width="1.6"
+            fill="none"
+            stroke-linecap="round"
+          />
+          <polygon points="25.5,15 29,16 26,17.5" fill="#e59866" />
+          <path
+            d="M 21.5,13.5 Q 22.5,15 23.5,13.5"
+            stroke="#2c3530"
+            stroke-width="1.2"
+            fill="none"
+            stroke-linecap="round"
+          />
+        </g>
+        <g transform="translate(68, 0)">
+          <text
+            x="0"
+            y="39"
+            font-family="'Comfortaa', 'Quicksand', sans-serif"
+            font-weight="700"
+            font-size="40"
+            letter-spacing="-1"
+            fill="#f0f4f1"
+            filter="url(#subtle-drop)"
+          >
+            skyline
+          </text>
+        </g>
+        <g transform="translate(228, 16)">
+          <text
+            x="-13"
+            y="26"
+            font-family="-apple-system, sans-serif"
+            font-weight="700"
+            font-size="9.5"
+            letter-spacing="3"
+            fill="#d4ad94"
+            opacity="0.9"
+            transform="rotate(90 0,10)"
+          >
+            LOFI
+          </text>
+        </g>
+      </svg>
+    </div>
+    <!-- MOBILE LINK BACK TO DESKTOP -->
+    <a href="./index.html" class="mobile-desktop-link" title="Open desktop version"><i class="ph ph-desktop"></i><span>Desktop</span></a>
+    <!-- TOP RIGHT AUTH LINK -->
+    <a
+      href="#"
+      class="top-auth-btn"
+      id="openAuthBtn"
+      onclick="openAuthModal(event)"
+      title="Log In"
+    >
+      <i class="ph ph-user"></i>
+      <span>Log in</span>
+    </a>
+    <!-- CHILLHOP BOTTOM DOCK BAR -->
+    <div class="chillhop-dock">
+      <!-- Left: Track Info (Populated dynamically from song/playlist.json) -->
+      <div class="dock-track-info">
+        <div class="dock-art" id="currentArt">
+          <img
+            id="currentArtImg"
+            src=""
+            alt="Cover"
+            style="width: 100%; height: 100%; object-fit: cover; display: none"
+          />
+          <span id="currentArtFallback">🌸</span>
         </div>
-        <span class="sound-label">Now playing</span>
-      </div>
-      <div class="timeline">
-        <div class="time-row"><span id="currentTime">00:00</span><span id="totalTime">00:00</span></div>
-        <div class="progress-track" id="dockTimeline" role="slider" aria-label="Seek through track" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" tabindex="0">
-          <div class="progress-fill" id="progressFill"></div>
+        <div class="dock-meta">
+          <div class="dock-title" id="currentTrackTitle">Loading...</div>
+          <div class="dock-artist" id="currentTrackArtist">
+            skyline sound team
+          </div>
         </div>
       </div>
-      <div class="controls">
-        <button class="control" type="button" onclick="toggleMute()" id="muteBtn" aria-label="Mute or unmute"><i class="ph ph-speaker-high"></i></button>
-        <button class="control" type="button" onclick="prevTrack()" aria-label="Previous track"><i class="ph ph-skip-back"></i></button>
-        <button class="control play" type="button" onclick="togglePlay()" id="playPauseBtn" aria-label="Play or pause"><i class="ph ph-play" id="playIcon"></i></button>
-        <button class="control" type="button" onclick="nextTrack()" aria-label="Next track"><i class="ph ph-skip-forward"></i></button>
-        <span class="control" aria-hidden="true"><i class="ph ph-headphones"></i></span>
+      <!-- Center: Playback & Timeline -->
+      <div class="dock-center-controls">
+        <div class="dock-buttons">
+          <button
+            class="dock-btn"
+            onclick="toggleMute()"
+            id="muteBtn"
+            title="Mute"
+          >
+            <i class="ph ph-speaker-high"></i>
+          </button>
+          <button class="dock-btn" onclick="prevTrack()" title="Previous">
+            <i class="ph ph-skip-back"></i>
+          </button>
+          <button
+            class="dock-btn main-play"
+            id="playPauseBtn"
+            onclick="togglePlay()"
+            title="Play/Pause"
+          >
+            <i class="ph ph-play" id="playIcon"></i>
+          </button>
+          <button class="dock-btn" onclick="nextTrack()" title="Next">
+            <i class="ph ph-skip-forward"></i>
+          </button>
+          <button
+            class="dock-btn"
+            id="screen"
+            onclick="toggleFullscreen()"
+            title="Fullscreen"
+          >
+            <i class="ph ph-corners-out"></i>
+          </button>
+          <button
+            class="dock-btn"
+            id="screenTog"
+            onclick="toggleFullscreen()"
+            title="Fullscreen"
+            style="display: none"
+          >
+            <i class="ph ph-corners-in"></i>
+          </button>
+        </div>
+        <div class="dock-progress-wrapper">
+          <div class="dock-timeline" id="dockTimeline">
+            <div
+              class="dock-timeline-fill"
+              id="progressFill"
+              style="width: 0%"
+            ></div>
+          </div>
+          <span id="totalTime">00:00</span>
+        </div>
       </div>
-    </section>
-
-    <section class="section">
-      <button class="section-head" type="button" aria-expanded="true" aria-controls="playlistContent" onclick="toggleMobileSection(this)">
-        <span><i class="ph ph-music-notes"></i> Your playlist</span><i class="ph ph-caret-down"></i>
-      </button>
-      <div class="section-content" id="playlistContent"><div class="panel-list" id="dynamicTrackList"><div class="empty-note">Loading tracks…</div></div></div>
-    </section>
-
-    <section class="section">
-      <button class="section-head" type="button" aria-expanded="false" aria-controls="historyContent" onclick="toggleMobileSection(this)">
-        <span><i class="ph ph-clock-counter-clockwise"></i> Recently played</span><i class="ph ph-caret-down"></i>
-      </button>
-      <div class="section-content" id="historyContent" hidden><div class="panel-list" id="historyList"><div class="empty-note">Your listening history will appear here.</div></div></div>
-    </section>
-
-    <div class="footer">A calmer corner of the internet · <a href="./index.html">Desktop site</a></div>
-  </main>
-  <script>
-    function toggleMobileSection(button){
-      const content=document.getElementById(button.getAttribute('aria-controls'));
-      const expanded=button.getAttribute('aria-expanded')==='true';
-      button.setAttribute('aria-expanded',String(!expanded));
-      content.hidden=expanded;
-      const icon=button.querySelector('.ph-caret-down');
-      if(icon) icon.style.transform=expanded?'rotate(-90deg)':'rotate(0deg)';
-    }
-    document.addEventListener('DOMContentLoaded',()=>{
-      const timeline=document.getElementById('dockTimeline');
-      if(timeline){
-        timeline.addEventListener('keydown',e=>{
-          if(e.key==='ArrowRight'||e.key==='ArrowLeft'){
-            e.preventDefault();
-            const rect=timeline.getBoundingClientRect();
-            const pct=e.key==='ArrowRight'?Math.min(1,(PlaylistPlayerTime()+5)/100):Math.max(0,(PlaylistPlayerTime()-5)/100);
-            const x=rect.left+rect.width*pct;
-            timeline.dispatchEvent(new PointerEvent('pointerdown',{bubbles:true,clientX:x,clientY:rect.top+rect.height/2,pointerId:1}));
-            timeline.dispatchEvent(new PointerEvent('pointerup',{bubbles:true,pointerId:1}));
-          }
-        });
-      }
-    });
-    function PlaylistPlayerTime(){return parseFloat(document.getElementById('progressFill')?.style.width)||0;}
-  </script>
-  <script src="./js/playlist.js"></script>
-  <script src="./js/device-gate.js"></script>
-</body>
+      <!-- Right: Chillhop Taskbar Icons -->
+      <div class="dock-tools">
+        <button
+          class="tool-icon-btn"
+          onclick="togglePanel('presetsPanel', this)"
+        >
+          <i class="ph ph-sliders"></i>
+          <span>Presets</span>
+        </button>
+        <button class="tool-icon-btn" onclick="togglePanel('musicPanel', this)">
+          <i class="ph ph-radio"></i>
+          <span>Music</span>
+        </button>
+        <button
+          class="tool-icon-btn"
+          onclick="togglePanel('visualsPanel', this)"
+        >
+          <i class="ph ph-image"></i>
+          <span>Visuals</span>
+        </button>
+        <button
+          class="tool-icon-btn"
+          onclick="togglePanel('soundsPanel', this)"
+        >
+          <i class="ph ph-waveform"></i>
+          <span>Sounds</span>
+        </button>
+        <button
+          class="tool-icon-btn"
+          onclick="togglePanel('historyPanel', this)"
+        >
+          <i class="ph ph-clock-counter-clockwise"></i>
+          <span>History</span>
+        </button>
+        <button class="tool-icon-btn" onclick="togglePanel('chatPanel', this)">
+          <i class="ph ph-chat-circle-dots"></i>
+          <span>Chat</span>
+        </button>
+        <button
+          class="tool-icon-btn"
+          onclick="togglePanel('copyrightPanel', this)"
+        >
+          <i class="ph ph-copyright"></i>
+          <span>Copyright</span>
+        </button>
+        <button class="tool-icon-btn" onclick="togglePanel('helpPanel', this)">
+          <i class="ph ph-question"></i>
+          <span>Help</span>
+        </button>
+      </div>
+    </div>
+    <!-- FLOATING PANELS -->
+    <div class="floating-panel" id="presetsPanel">
+      <div class="panel-header">Layout Presets</div>
+      <div class="panel-list">
+        <button class="panel-item active">✨ Default</button>
+        <span
+          style="
+            font-family:
+              &quot;Quicksand&quot;,
+              -apple-system,
+              sans-serif;
+            font-size: 13px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            color: #b8cbb9;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            justify-self: center;
+            align-self: center;
+          "
+          >There's more to come!</span
+        >
+      </div>
+    </div>
+    <!-- Music Panel: Dynamically populated with tracks from song/playlist.json -->
+    <div class="floating-panel" id="musicPanel">
+      <div class="panel-header">Tracklist</div>
+      <div class="panel-list" id="dynamicTrackList">
+        <!-- JS injects buttons here from playlist.json -->
+        <span
+          style="
+            justify-content: center;
+            justify-items: center;
+            justify-self: center;
+            align-items: center;
+            align-content: center;
+            align-self: center;
+          "
+          >More songs to come!</span
+        >
+      </div>
+    </div>
+    <div class="floating-panel" id="visualsPanel">
+      <div class="panel-header">Background Scene</div>
+      <div class="panel-list">
+        <button
+          class="panel-item bg-btn active"
+          onclick="switchBackground('vid-rain', this)"
+        >
+          🌧️ Gentle Rain
+        </button>
+        <button
+          class="panel-item bg-btn"
+          onclick="switchBackground('vid-sunset', this)"
+        >
+          🌅 Sunset Stroll
+        </button>
+        <button
+          class="panel-item bg-btn"
+          onclick="switchBackground('vid-fireplace', this)"
+        >
+          🔥 Cozy Fireplace
+        </button>
+        <button
+          class="panel-item bg-btn"
+          onclick="switchBackground('vid-snow', this)"
+        >
+          ❄️ Snowy Cabin
+        </button>
+        <button
+          class="panel-item bg-btn"
+          onclick="switchBackground('vid-cyber', this)"
+        >
+          🌃 Cyber City
+        </button>
+      </div>
+    </div>
+    <div class="floating-panel" id="soundsPanel">
+      <div class="panel-header">Ambient Sound Mixer</div>
+      <span
+        style="
+          font-family:
+            &quot;Quicksand&quot;,
+            -apple-system,
+            sans-serif;
+          font-size: 13px;
+          font-weight: 600;
+          letter-spacing: 0.5px;
+          color: #b8cbb9;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          justify-self: center;
+          align-self: center;
+        "
+        >Coming Soon!</span
+      >
+    </div>
+    <div class="floating-panel" id="historyPanel">
+      <div class="panel-header">Listening History</div>
+      <span
+        style="
+          font-family:
+            &quot;Quicksand&quot;,
+            -apple-system,
+            sans-serif;
+          font-size: 13px;
+          font-weight: 600;
+          letter-spacing: 0.5px;
+          color: #b8cbb9;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          justify-self: center;
+          align-self: center;
+        "
+        >Top Tracks are most recent!</span
+      >
+      <div class="panel-list" id="historyList">
+        <!-- JS dynamically logs played tracks here -->
+      </div>
+    </div>
+    <div class="floating-panel" id="chatPanel">
+      <div class="panel-header">
+        Community Chat
+        <span style="color: #d4836a; font-weight: 600">(Beta)</span>
+      </div>
+      <!-- BLOCKED STATE (When not logged in) -->
+      <div
+        id="chatBlockedState"
+        style="
+          text-align: center;
+          padding: 20px 8px;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 10px;
+        "
+      >
+        <div
+          style="
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: rgba(212, 131, 106, 0.15);
+            border: 1px solid rgba(212, 131, 106, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            color: #d4836a;
+          "
+        >
+          <i class="ph ph-lock-key"></i>
+        </div>
+        <div style="font-size: 13px; font-weight: 700; color: #f0f4f1">
+          Members Only
+        </div>
+        <div
+          style="
+            font-size: 11.5px;
+            color: #93a895;
+            line-height: 1.5;
+            max-width: 200px;
+          "
+        >
+          Log in or create an account to chat with the Skyline community.
+        </div>
+        <button
+          type="button"
+          class="panel-item"
+          onclick="openAuthModal(event)"
+          style="
+            background: #d4836a;
+            color: #fff;
+            font-weight: 700;
+            text-align: center;
+            justify-content: center;
+            border-radius: 10px;
+            padding: 8px 16px;
+            margin-top: 4px;
+            box-shadow: 0 4px 12px rgba(212, 131, 106, 0.3);
+          "
+        >
+          Log In to Chat
+        </button>
+      </div>
+      <!-- ACTIVE CHAT STATE (When logged in) -->
+      <div
+        id="chatActiveState"
+        style="display: none; flex-direction: column; height: 100%"
+      >
+        <div
+          style="
+            font-size: 11px;
+            color: #93a895;
+            text-align: center;
+            padding: 4px 0 8px;
+          "
+        >
+          Connected to local server. Follow the community guidelines and enjoy
+          your stay!
+        </div>
+        <div
+          id="chatMessages"
+          style="
+            max-height: 180px;
+            min-height: 120px;
+            overflow-y: auto;
+            font-size: 12px;
+            color: #f0f4f1;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            padding-right: 4px;
+            margin-bottom: 10px;
+          "
+        ></div>
+        <div
+          class="chat-input-row"
+          style="
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background-color: rgba(13, 17, 15, 0.85);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 14px;
+            padding: 3px 4px 3px 12px;
+          "
+        >
+          <input
+            type="text"
+            id="chatInput"
+            placeholder="Type a message..."
+            style="
+              flex: 1;
+              border: none;
+              background: transparent;
+              color: #f0f4f1;
+              font-family: &quot;Quicksand&quot;, sans-serif;
+              font-size: 12px;
+              outline: none;
+              padding: 6px 0;
+            "
+          />
+          <button
+            type="button"
+            id="chatSendBtn"
+            onclick="sendChatMessage()"
+            title="Send message"
+            style="
+              width: 28px;
+              height: 28px;
+              border-radius: 50%;
+              background: #d4836a;
+              border: none;
+              color: #fff;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              cursor: pointer;
+              transition: all 0.2s ease;
+              flex-shrink: 0;
+              box-shadow: 0 2px 8px rgba(212, 131, 106, 0.3);
+            "
+          >
+            <i class="ph ph-arrow-up" style="font-size: 14px"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+    <div class="floating-panel" id="copyrightPanel">
+      <div class="panel-header">Copyright & Licensing</div>
+      <div
+        style="
+          font-size: 12px;
+          color: #93a895;
+          text-align: center;
+          padding: 15px 0;
+        "
+      >
+        Visuals are provided by
+        <a
+          href="https://app.chillhop.com/#"
+          target="_blank"
+          style="color: #d4836a"
+          >Chillhop</a
+        >, a really good music website, and are used under their licensing
+        terms. Servers are provided for free by
+        <a
+          href="https://firebase.google.com/"
+          target="_blank"
+          style="color: #d4836a"
+          >Firebase</a
+        >. The song played currently is made by the following artist(s):
+        <span id="copyrightArtist" style="color: #f0f4f1; font-weight: 600"
+          >The Skyline Sound Team</span
+        >. Making Skyline was a really fun time, and I hope you enjoy it! If you
+        have any questions or concerns, please reach out to me at the official
+        Skyline
+        <a
+          href="https://github.com/PrismID/skyline"
+          target="_blank"
+          style="color: #d4836a"
+          >GitHub page</a
+        >. Skyline is an open-source project, and is covered by the
+        <a
+          href="https://github.com/PrismID/skyline-lofi/blob/main/LICENSE"
+          target="_blank"
+          style="color: #d4836a"
+          >MIT License</a
+        >.
+        <a
+          target="_blank"
+          style="color: #d4836a"
+          href="https://icons8.com/icon/98A4yZTt9abw/verified-badge"
+          >Verified Badge</a
+        >
+        icon by
+        <a target="_blank" href="https://icons8.com" style="color: #d4836a"
+          >Icons8</a
+        >
+      </div>
+    </div>
+    <div class="floating-panel" id="helpPanel">
+      <div class="panel-header">Help & Support</div>
+      <div
+        class="panel-content"
+        style="
+          font-size: 12px;
+          color: #93a895;
+          text-align: center;
+          padding: 15px 0;
+        "
+      >
+        <p>
+          Need assistance? Check out our
+          <a
+            href="https://github.com/PrismID/skyline-lofi/wiki"
+            target="_blank"
+            style="color: #d4836a"
+            >Wiki</a
+          >
+          or fill out the
+          <a
+            href="https://forms.gle/AftKqZWGCu4nWaAZ6"
+            target="_blank"
+            style="color: #d4836a"
+            >support questionnaire.</a
+          >
+        </p>
+      </div>
+    </div>
+    <!-- AUTH MODAL DIALOG (Log In / Sign Up) -->
+    <div
+      class="auth-modal-overlay"
+      id="authModalOverlay"
+      onclick="handleAuthOverlayClick(event)"
+    >
+      <div
+        class="auth-modal-card"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="authTitle"
+      >
+        <button class="auth-close-btn" onclick="closeAuthModal()" title="Close">
+          &times;
+        </button>
+        <div class="auth-logo-badge">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 36 36"
+            width="38"
+            height="38"
+          >
+            <circle cx="18" cy="18" r="18" fill="#526857" opacity="0.6" />
+            <path
+              d="M 6,28 C 13,26 23,27 30,24"
+              stroke="#f0f4f1"
+              stroke-width="2.2"
+              stroke-linecap="round"
+              fill="none"
+            />
+            <path
+              d="M 12,24 C 10.5,20 12,14 16,12 C 20,10 24.5,12 25.5,15.5 C 26.5,19 23,24 18,24 C 15,24 13,25 12,24 Z"
+              fill="#f0f4f1"
+              stroke="#f0f4f1"
+              stroke-width="1"
+              stroke-linejoin="round"
+            />
+            <path
+              d="M 15,16.5 C 18,17 21,19 21,22"
+              stroke="#2c3530"
+              stroke-width="1.6"
+              fill="none"
+              stroke-linecap="round"
+            />
+            <polygon points="25.5,15 29,16 26,17.5" fill="#e59866" />
+            <path
+              d="M 21.5,13.5 Q 22.5,15 23.5,13.5"
+              stroke="#2c3530"
+              stroke-width="1.2"
+              fill="none"
+              stroke-linecap="round"
+            />
+          </svg>
+        </div>
+        <div class="auth-header-title" id="authTitle">skyline</div>
+        <div class="auth-header-subtitle" id="authSubtitle">
+          Welcome back to your lofi retreat
+        </div>
+        <div class="auth-tabs">
+          <button
+            type="button"
+            class="auth-tab-btn active"
+            id="tabLogin"
+            onclick="switchAuthTab('login')"
+          >
+            Log In
+          </button>
+          <button
+            type="button"
+            class="auth-tab-btn"
+            id="tabSignup"
+            onclick="switchAuthTab('signup')"
+          >
+            Sign Up
+          </button>
+        </div>
+        <form
+          class="auth-form"
+          id="authForm"
+          onsubmit="handleAuthSubmit(event)"
+        >
+          <div class="auth-input-group" id="nameGroup" style="display: none">
+            <i class="ph ph-user"></i>
+            <input
+              type="text"
+              class="auth-input"
+              id="authName"
+              placeholder="Username"
+              autocomplete="username"
+            />
+          </div>
+          <div class="auth-input-group">
+            <i class="ph ph-envelope"></i>
+            <input
+              type="email"
+              class="auth-input"
+              id="authEmail"
+              placeholder="Email address"
+              required
+              autocomplete="email"
+            />
+          </div>
+          <div class="auth-input-group">
+            <i class="ph ph-lock"></i>
+            <input
+              type="password"
+              class="auth-input"
+              id="authPassword"
+              placeholder="Password"
+              required
+              autocomplete="current-password"
+            />
+          </div>
+          <div class="auth-row-actions" id="authRowActions">
+            <label class="auth-checkbox-label">
+              <input type="checkbox" id="authRemember" checked />
+              <span>Remember me</span>
+            </label>
+            <a
+              href="#"
+              class="auth-link"
+              onclick="
+                event.preventDefault();
+                alert(
+                  'A reset link has been dispatched to your email. Please check your inbox. If email is not in your inbox, please check your spam/junk folder!',
+                );
+              "
+              >Forgot password?</a
+            >
+          </div>
+          <div
+            class="auth-row-actions"
+            id="authRowActions2"
+            style="display: none"
+          >
+            <span
+              style="
+                justify-content: center;
+                justify-items: center;
+                justify-self: center;
+                align-items: center;
+                align-content: center;
+                align-self: center;
+              "
+              >Uppercase, lowercase, numbers, and special characters are
+              required.<span style="color: #ff0000">*</span></span
+            >
+          </div>
+          <button type="submit" class="auth-submit-btn" id="authSubmitBtn">
+            Log In
+          </button>
+        </form>
+      </div>
+    </div>
+    <!-- TUTORIAL MODAL OVERLAY -->
+    <div class="auth-modal-overlay" id="tutorialModalOverlay">
+      <div
+        class="auth-modal-card"
+        style="max-width: 440px; text-align: center"
+        role="dialog"
+        aria-modal="true"
+      >
+        <button
+          class="auth-close-btn"
+          onclick="App.closeTutorial()"
+          title="Close"
+        >
+          &times;
+        </button>
+        <div
+          class="auth-logo-badge"
+          id="tutIcon"
+          style="font-size: 24px; color: #d4836a"
+        >
+          <i class="ph ph-sparkle"></i>
+        </div>
+        <div
+          class="auth-header-title"
+          id="tutTitle"
+          style="display: flex; flex-direction: column; align-items: center"
+        >
+          <span>Welcome to</span>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 350 56"
+            width="210"
+            height="36"
+            style="margin-top: 6px; margin-left: 83px"
+          >
+            <g transform="translate(14, 10)">
+              <circle cx="18" cy="18" r="18" fill="#526857" opacity="0.5" />
+              <path
+                d="M 6,28 C 13,26 23,27 30,24"
+                stroke="#f0f4f1"
+                stroke-width="2.2"
+                stroke-linecap="round"
+                fill="none"
+              />
+              <path
+                d="M 12,24 C 10.5,20 12,14 16,12 C 20,10 24.5,12 25.5,15.5 C 26.5,19 23,24 18,24 C 15,24 13,25 12,24 Z"
+                fill="#f0f4f1"
+                stroke="#f0f4f1"
+                stroke-width="1"
+                stroke-linejoin="round"
+              />
+              <path
+                d="M 15,16.5 C 18,17 21,19 21,22"
+                stroke="#2c3530"
+                stroke-width="1.6"
+                fill="none"
+                stroke-linecap="round"
+              />
+              <polygon points="25.5,15 29,16 26,17.5" fill="#e59866" />
+              <path
+                d="M 21.5,13.5 Q 22.5,15 23.5,13.5"
+                stroke="#2c3530"
+                stroke-width="1.2"
+                fill="none"
+                stroke-linecap="round"
+              />
+            </g>
+            <g transform="translate(68, 0)">
+              <text
+                x="0"
+                y="39"
+                font-family="'Comfortaa', 'Quicksand', sans-serif"
+                font-weight="700"
+                font-size="40"
+                letter-spacing="-1"
+                fill="#f0f4f1"
+              >
+                skyline
+              </text>
+            </g>
+            <g transform="translate(228, 16)">
+              <text
+                x="-13"
+                y="26"
+                font-family="-apple-system, sans-serif"
+                font-weight="700"
+                font-size="9.5"
+                letter-spacing="3"
+                fill="#d4ad94"
+                opacity="0.9"
+                transform="rotate(90 0,10)"
+              >
+                LOFI
+              </text>
+            </g>
+          </svg>
+        </div>
+        <div
+          class="auth-header-subtitle"
+          id="tutDesc"
+          style="margin-bottom: 24px; line-height: 1.6"
+        >
+          Let’s take a quick 30-second tour of your new lofi retreat so you can
+          get the most out of your sessions.
+        </div>
+        <!-- Step indicators -->
+        <div
+          style="
+            display: flex;
+            justify-content: center;
+            gap: 6px;
+            margin-bottom: 20px;
+          "
+          id="tutDots"
+        >
+          <span
+            class="tut-dot active"
+            style="
+              width: 8px;
+              height: 8px;
+              border-radius: 50%;
+              background: #d4836a;
+            "
+          ></span>
+          <span
+            class="tut-dot"
+            style="
+              width: 8px;
+              height: 8px;
+              border-radius: 50%;
+              background: rgba(255, 255, 255, 0.15);
+            "
+          ></span>
+          <span
+            class="tut-dot"
+            style="
+              width: 8px;
+              height: 8px;
+              border-radius: 50%;
+              background: rgba(255, 255, 255, 0.15);
+            "
+          ></span>
+          <span
+            class="tut-dot"
+            style="
+              width: 8px;
+              height: 8px;
+              border-radius: 50%;
+              background: rgba(255, 255, 255, 0.15);
+            "
+          ></span>
+          <span
+            class="tut-dot"
+            style="
+              width: 8px;
+              height: 8px;
+              border-radius: 50%;
+              background: rgba(255, 255, 255, 0.15);
+            "
+          ></span>
+        </div>
+        <div style="display: flex; gap: 10px; width: 100%">
+          <button
+            type="button"
+            class="auth-submit-btn"
+            id="tutSkipBtn"
+            onclick="App.closeTutorial()"
+            style="
+              background: rgba(255, 255, 255, 0.08);
+              color: #b8cbb9;
+              box-shadow: none;
+            "
+          >
+            Skip
+          </button>
+          <button
+            type="button"
+            class="auth-submit-btn"
+            id="tutNextBtn"
+            onclick="App.nextTutorialStep()"
+          >
+            Next
+          </button>
+        </div>
+      </div>
+    </div>
+    <script src="./js/device-gate.js"></script>
+    <!-- SCRIPT ENGINE -->
+    <script src="./js/playlist.js"></script>
+    <script src="./js/firebase.js" type="module"></script>
+    <script src="./js/app.js"></script>
+  </body>
 </html>
+<!----  MEWO -------~~>
+       /\_/\
+      ( o.o )
+       > ^ <
+ ~~~~SKYLINE TEAM~~~~-->
