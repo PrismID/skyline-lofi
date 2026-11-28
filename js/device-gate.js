@@ -13,7 +13,6 @@
     const screenHeight = window.screen?.height || window.innerHeight;
     const shortestScreenSide = Math.min(screenWidth, screenHeight);
 
-    // Prefer explicit tablet signals, including iPads using desktop-mode Safari.
     const userAgentData = navigator.userAgentData;
     const reportedTablet = Array.isArray(userAgentData?.formFactors)
       && userAgentData.formFactors.includes("Tablet");
@@ -21,8 +20,6 @@
       || (/Macintosh/i.test(userAgent) && touchPoints > 1);
     const androidTablet = /Android/i.test(userAgent)
       && !/Mobile/i.test(userAgent);
-
-    // Fallback for tablets whose browser does not identify its form factor.
     const largeTouchScreen = touchPoints > 1
       && coarsePointer.matches
       && shortestScreenSide >= 600;
@@ -35,58 +32,106 @@
     root.dataset.viewport = compactViewport.matches ? "compact" : "wide";
   }
 
-  function addTabletLandscapeNotice() {
+  function enforceTabletLandscape() {
+    // Phones and desktop devices are deliberately left untouched.
     if (!isTabletDevice()) return;
 
-    const notice = document.createElement("div");
-    notice.id = "skyline-tablet-landscape-notice";
-    notice.setAttribute("role", "status");
-    notice.setAttribute("aria-live", "polite");
-    notice.textContent = "For the best Skyline experience, turn your tablet sideways (landscape).";
+    const overlay = document.createElement("div");
+    overlay.id = "skyline-tablet-orientation-lock";
+    overlay.setAttribute("role", "alert");
+    overlay.setAttribute("aria-live", "assertive");
 
-    Object.assign(notice.style, {
+    const content = document.createElement("div");
+    const icon = document.createElement("div");
+    const heading = document.createElement("h1");
+    const message = document.createElement("p");
+
+    icon.textContent = "↻";
+    heading.textContent = "Rotate your tablet";
+    message.textContent = "Skyline works best in landscape mode. Turn your tablet sideways to continue.";
+
+    Object.assign(overlay.style, {
       position: "fixed",
-      top: "12px",
-      left: "50%",
-      transform: "translateX(-50%)",
-      zIndex: "99999",
-      width: "max-content",
-      maxWidth: "calc(100vw - 32px)",
+      inset: "0",
+      zIndex: "2147483647",
+      display: "none",
+      alignItems: "center",
+      justifyContent: "center",
       boxSizing: "border-box",
-      padding: "12px 18px",
-      borderRadius: "12px",
-      background: "rgba(20, 20, 28, 0.96)",
+      width: "100vw",
+      height: "100vh",
+      height: "100dvh",
+      padding: "32px",
+      background: "#090b12",
       color: "#ffffff",
-      border: "1px solid rgba(255, 255, 255, 0.16)",
-      boxShadow: "0 6px 24px rgba(0, 0, 0, 0.28)",
-      font: "600 14px/1.45 system-ui, sans-serif",
       textAlign: "center",
-      pointerEvents: "none",
-      display: "none"
+      pointerEvents: "auto",
+      touchAction: "none"
     });
 
-    document.body.appendChild(notice);
+    Object.assign(content.style, {
+      width: "100%",
+      maxWidth: "440px",
+      display: "flex",
+      flexDirection: "column",
+      alignItems: "center",
+      gap: "14px",
+      fontFamily: "system-ui, sans-serif"
+    });
 
-    function updateNoticeVisibility() {
-      const isPortrait = portraitViewport.matches;
-      notice.style.display = isPortrait ? "block" : "none";
+    Object.assign(icon.style, {
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      width: "88px",
+      height: "88px",
+      border: "2px solid rgba(255,255,255,.7)",
+      borderRadius: "24px",
+      fontSize: "54px",
+      lineHeight: "1",
+      color: "#9bdcff"
+    });
+
+    Object.assign(heading.style, {
+      margin: "10px 0 0",
+      fontSize: "clamp(26px, 5vw, 38px)",
+      fontWeight: "700"
+    });
+
+    Object.assign(message.style, {
+      margin: "0",
+      maxWidth: "360px",
+      color: "rgba(255,255,255,.76)",
+      fontSize: "16px",
+      lineHeight: "1.6"
+    });
+
+    content.append(icon, heading, message);
+    overlay.appendChild(content);
+    document.body.appendChild(overlay);
+
+    function updateOrientationLock() {
+      const portrait = portraitViewport.matches;
+      overlay.style.display = portrait ? "flex" : "none";
+      document.body.style.overflow = portrait ? "hidden" : "";
+      document.documentElement.style.overflow = portrait ? "hidden" : "";
     }
 
-    updateNoticeVisibility();
-    portraitViewport.addEventListener("change", updateNoticeVisibility);
-    window.addEventListener("orientationchange", updateNoticeVisibility);
+    updateOrientationLock();
+    portraitViewport.addEventListener("change", updateOrientationLock);
+    window.addEventListener("orientationchange", updateOrientationLock);
+    window.addEventListener("resize", updateOrientationLock);
+    screen.orientation?.addEventListener?.("change", updateOrientationLock);
   }
 
-  // CSS media queries handle the responsive layout. These attributes are
-  // optional hints for scripts that need to adapt to the current device.
+  // CSS media queries remain responsible for responsive layout.
   updateDeviceInfo();
   coarsePointer.addEventListener("change", updateDeviceInfo);
   compactViewport.addEventListener("change", updateDeviceInfo);
 
-  // The orientation reminder is created only on tablet devices.
   if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", addTabletLandscapeNotice, { once: true });
+    document.addEventListener("DOMContentLoaded", enforceTabletLandscape, { once: true });
   } else {
-    addTabletLandscapeNotice();
+    enforceTabletLandscape();
   }
 })();
