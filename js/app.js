@@ -603,7 +603,7 @@ const App = (() => {
                 bubble.innerHTML = `
                     <div class="chat-bubble-author">
                         <span>${escapeAuthHtml(author)}</span>
-                        ${getBadgesHTML({ isAdmin, isVerified })}
+                        ${getBadgesHTML(roles)}
                     </div>
                     <div>${escapeAuthHtml(text)}</div>
                 `;
@@ -661,7 +661,7 @@ const App = (() => {
         return div.innerHTML;
     }
 
-    async function checkAdminAccess(user) {
+    function checkAdminAccess(user) {
         const dockTools = document.querySelector('.dock-tools');
         const existingAdminBtn = document.getElementById('adminTaskbarBtn');
         const existingAdminPanel = document.getElementById('adminPanel');
@@ -669,50 +669,31 @@ const App = (() => {
         if (existingAdminPanel) existingAdminPanel.remove();
         if (!dockTools || !user) return;
 
-        // The owner is recognized by their authenticated Firebase email.
-        // Other admins must have an admins/{uid} document, checked against
-        // Firestore rules that allow users to read only their own admin record.
-        const isOwner = (user.email || '').trim().toLowerCase() === 'dito.hdez@gmail.com';
-        let isAdmin = isOwner;
+        // The Admin panel uses the same config/access_lists.admin_emails
+        // array as the ADMIN badge in chat. Firestore rules enforce permissions.
+        const { isAdmin } = getUserRoles(user.email);
+        if (!isAdmin) return;
 
-        if (!isOwner && user.uid && window.firebaseAPI?.getDoc && window.firebaseAPI?.doc) {
-            try {
-                const adminDoc = await window.firebaseAPI.getDoc(
-                    window.firebaseAPI.doc(window.firebaseAPI.db, 'admins', user.uid)
-                );
-                isAdmin = adminDoc.exists();
-            } catch (error) {
-                console.warn('Unable to verify admin access from Firestore:', error);
-                isAdmin = false;
-            }
-        }
+        const adminBtn = document.createElement('button');
+        adminBtn.className = 'tool-icon-btn';
+        adminBtn.id = 'adminTaskbarBtn';
+        adminBtn.innerHTML = `<i class="ph ph-shield-star" style="color: #d4836a;"></i><span>Admin</span>`;
+        adminBtn.onclick = () => togglePanel('adminPanel', adminBtn);
+        dockTools.appendChild(adminBtn);
 
-        // Do not let a delayed lookup from an old session restore the admin UI.
-        if (window.firebaseAPI?.auth?.currentUser?.uid !== user.uid) return;
-
-        if (isAdmin) {
-            const adminBtn = document.createElement('button');
-            adminBtn.className = 'tool-icon-btn';
-            adminBtn.id = 'adminTaskbarBtn';
-            adminBtn.innerHTML = `<i class="ph ph-shield-star" style="color: #d4836a;"></i><span>Admin</span>`;
-            adminBtn.onclick = () => togglePanel('adminPanel', adminBtn);
-
-            dockTools.appendChild(adminBtn);
-
-            const adminPanel = document.createElement('div');
-            adminPanel.className = 'floating-panel';
-            adminPanel.id = 'adminPanel';
-            adminPanel.innerHTML = `
-                <div class="panel-header" style="color: #d4836a;">Admin Control Panel</div>
-                <div style="font-size: 12px; color: #f0f4f1; display: flex; flex-direction: column; gap: 10px; padding: 6px 0;">
-                    <div>Logged in as Admin: <b>${escapeAuthHtml(user.email)}</b></div>
-                    <button class="panel-item" onclick="App.clearChatMessages()" style="background: rgba(212, 131, 106, 0.2); border-color: rgba(212, 131, 106, 0.4); text-align: center; justify-content: center;">
-                        🗑️ Clear All Chat Messages
-                    </button>
-                </div>
-            `;
-            document.body.appendChild(adminPanel);
-        }
+        const adminPanel = document.createElement('div');
+        adminPanel.className = 'floating-panel';
+        adminPanel.id = 'adminPanel';
+        adminPanel.innerHTML = `
+            <div class="panel-header" style="color: #d4836a;">Admin Control Panel</div>
+            <div style="font-size: 12px; color: #f0f4f1; display: flex; flex-direction: column; gap: 10px; padding: 6px 0;">
+                <div>Logged in as Admin: <b>${escapeAuthHtml(user.email)}</b></div>
+                <button class="panel-item" onclick="App.clearChatMessages()" style="background: rgba(212, 131, 106, 0.2); border-color: rgba(212, 131, 106, 0.4); text-align: center; justify-content: center;">
+                    🗑️ Clear All Chat Messages
+                </button>
+            </div>
+        `;
+        document.body.appendChild(adminPanel);
     }
 
     async function clearChatMessages() {

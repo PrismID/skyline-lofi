@@ -1,0 +1,69 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isOwner() {
+      return request.auth != null
+        && request.auth.token.email == "dito.hdez@gmail.com";
+    }
+
+    function adminEmailList() {
+      return get(/databases/$(database)/documents/config/access_lists).data.admin_emails;
+    }
+
+    function isAdmin() {
+      return request.auth != null
+        && request.auth.token.email != null
+        && adminEmailList() is list
+        && request.auth.token.email in adminEmailList();
+    }
+
+    // Access lists are public so the client can render badges.
+    // Only the owner may change role assignments.
+    match /config/access_lists {
+      allow read: if true;
+      allow write: if isOwner();
+    }
+
+    // Other config documents remain manageable by admins.
+    match /config/{docId} {
+      allow read: if true;
+      allow write: if docId != "access_lists" && isAdmin();
+    }
+
+    match /messages/{messageId} {
+      allow read: if true;
+
+      allow create: if request.auth != null
+        && request.auth.token.email_verified == true
+        && request.resource.data.keys().hasAll([
+          'author',
+          'email',
+          'text',
+          'timestamp'
+        ])
+        && request.resource.data.keys().hasOnly([
+          'author',
+          'email',
+          'text',
+          'timestamp'
+        ])
+        && request.resource.data.author is string
+        && request.resource.data.author.size() > 0
+        && request.resource.data.text is string
+        && request.resource.data.text.size() > 0
+        && request.resource.data.text.size() <= 1000
+        && request.resource.data.email == request.auth.token.email
+        && request.resource.data.timestamp is timestamp
+        && request.resource.data.timestamp <= request.time;
+
+      allow update: if false;
+      allow delete: if isAdmin();
+    }
+
+    match /admin_data/{docId} {
+      allow read, write: if isAdmin();
+    }
+  }
+}
