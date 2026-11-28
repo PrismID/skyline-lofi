@@ -29,7 +29,7 @@ service cloud.firestore {
     // Other config documents remain manageable by admins.
     match /config/{docId} {
       allow read: if true;
-      allow write: if isAdmin();
+      allow write: if docId != "access_lists" && isAdmin();
     }
 
     match /messages/{messageId} {
