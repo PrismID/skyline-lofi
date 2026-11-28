@@ -594,11 +594,9 @@ const App = (() => {
                 const text = data.text || '';
                 const email = data.email || '';
 
-                const authUserEmail = window.firebaseAPI.auth.currentUser?.email || '';
-                const fallbackEmail = (!email && currentUser === author) ? authUserEmail : email;
-                const roles = getUserRoles(fallbackEmail);
-                const isAdmin = typeof data.isAdmin === 'boolean' ? data.isAdmin : roles.isAdmin;
-                const isVerified = typeof data.isVerified === 'boolean' ? data.isVerified : roles.isVerified;
+                // Role badges come from the trusted access-list configuration.
+                // Never trust isAdmin/isVerified fields stored on a user-created message.
+                const roles = getUserRoles(email);
 
                 const bubble = document.createElement('div');
                 bubble.className = 'chat-bubble';
@@ -633,15 +631,19 @@ const App = (() => {
         input.value = '';
 
         const user = window.firebaseAPI.auth.currentUser;
-        const email = user ? (user.email || '') : '';
-        const { isAdmin, isVerified } = getUserRoles(email);
+        if (!user || !user.emailVerified) {
+            alert("Please verify your email address before sending a message.");
+            input.focus();
+            return;
+        }
+        const email = user.email || '';
 
         try {
+            // Keep this payload aligned with the Firestore create rule.
+            // Role fields are intentionally omitted because clients cannot assign roles.
             await window.firebaseAPI.addDoc(window.firebaseAPI.collection(window.firebaseAPI.db, "messages"), {
                 author: currentUser,
                 email: email,
-                isAdmin: isAdmin,
-                isVerified: isVerified,
                 text: text,
                 timestamp: window.firebaseAPI.serverTimestamp()
             });
@@ -659,18 +661,36 @@ const App = (() => {
         return div.innerHTML;
     }
 
-    function checkAdminAccess(user) {
+    async function checkAdminAccess(user) {
         const dockTools = document.querySelector('.dock-tools');
-        if (!dockTools) return;
-
         const existingAdminBtn = document.getElementById('adminTaskbarBtn');
         const existingAdminPanel = document.getElementById('adminPanel');
         if (existingAdminBtn) existingAdminBtn.remove();
         if (existingAdminPanel) existingAdminPanel.remove();
+        if (!dockTools || !user) return;
 
-        const { isAdmin } = getUserRoles(user?.email);
+        // The owner is recognized by their authenticated Firebase email.
+        // Other admins must have an admins/{uid} document, checked against
+        // Firestore rules that allow users to read only their own admin record.
+        const isOwner = (user.email || '').trim().toLowerCase() === 'dito.hdez@gmail.com';
+        let isAdmin = isOwner;
 
-        if (user && isAdmin) {
+        if (!isOwner && user.uid && window.firebaseAPI?.getDoc && window.firebaseAPI?.doc) {
+            try {
+                const adminDoc = await window.firebaseAPI.getDoc(
+                    window.firebaseAPI.doc(window.firebaseAPI.db, 'admins', user.uid)
+                );
+                isAdmin = adminDoc.exists();
+            } catch (error) {
+                console.warn('Unable to verify admin access from Firestore:', error);
+                isAdmin = false;
+            }
+        }
+
+        // Do not let a delayed lookup from an old session restore the admin UI.
+        if (window.firebaseAPI?.auth?.currentUser?.uid !== user.uid) return;
+
+        if (isAdmin) {
             const adminBtn = document.createElement('button');
             adminBtn.className = 'tool-icon-btn';
             adminBtn.id = 'adminTaskbarBtn';
